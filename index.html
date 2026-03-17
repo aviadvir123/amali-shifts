@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>סגירת יום – עמלי</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alef:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue:        rgb(32, 80, 130);
+      --blue-hex:    #205082;
+      --blue-border: rgba(32, 80, 130, 0.25);
+      --bg:          #F5F5F5;
+      --white:       #FFFFFF;
+      --gray:        #D0D0D0;
+      --gray-dark:   #888;
+      --radius:      12px;
+      --radius-sm:   8px;
+      --font: 'Alef', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { font-family: var(--font); font-size: 16px; font-weight: 700; }
+
+    body {
+      background: var(--bg);
+      color: var(--blue);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 48px;
+    }
+
+    /* ── Header ── */
+    header {
+      width: 100%;
+      background: var(--blue);
+      padding: 14px 20px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-logo {
+      max-width: 58%;
+      max-height: 88px;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    .header-date {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* ── Container ── */
+    .container {
+      width: 100%;
+      max-width: 480px;
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* ── Cards ── */
+    .card {
+      width: 100%;
+      background: var(--white);
+      border-radius: var(--radius);
+      border: 2px solid var(--blue);
+      padding: 18px 16px;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--blue);
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1.5px solid var(--blue-border);
+    }
+
+    /* ── Checklist ── */
+    .checklist { display: flex; flex-direction: column; gap: 8px; }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 13px 14px;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--blue-border);
+      background: var(--white);
+      cursor: pointer;
+      font-family: var(--font);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--blue);
+      transition: all 0.13s ease;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      text-align: right;
+      touch-action: manipulation;
+    }
+
+    .check-item .c-icon { font-size: 1rem; flex-shrink: 0; }
+
+    .check-item.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: var(--white);
+    }
+
+    .check-item:active { transform: scale(0.98); }
+
+    /* ── Ingredient toggle grid ── */
+    .toggle-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    @media (min-width: 390px) {
+      .toggle-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .toggle-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 10px 4px;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--blue-border);
+      background: var(--white);
+      cursor: pointer;
+      font-family: var(--font);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--gray-dark);
+      transition: all 0.13s ease;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      line-height: 1.3;
+      touch-action: manipulation;
+    }
+
+    .toggle-btn .t-icon { font-size: 0.95rem; }
+
+    .toggle-btn.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: var(--white);
+    }
+
+    .toggle-btn:active { transform: scale(0.91); }
+
+    /* ── Text fields ── */
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+
+    .field-label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--blue);
+    }
+
+    textarea {
+      font-family: var(--font);
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: var(--blue);
+      background: var(--white);
+      border: 2px solid var(--blue-border);
+      border-radius: var(--radius-sm);
+      padding: 11px 13px;
+      resize: none;
+      outline: none;
+      width: 100%;
+      min-height: 76px;
+      transition: border-color 0.15s;
+      text-align: right;
+      direction: rtl;
+      line-height: 1.6;
+    }
+
+    textarea::placeholder { color: var(--gray); font-weight: 400; }
+    textarea:focus { border-color: var(--blue); }
+
+    /* ── Send button ── */
+    .send-btn {
+      width: 100%;
+      height: 54px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: #25D366;
+      color: var(--white);
+      font-family: var(--font);
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 18px rgba(37, 211, 102, 0.32);
+      transition: opacity 0.13s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .send-btn:active { opacity: 0.85; }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="logo.png" alt="עמלי" class="header-logo">
+  <div class="header-date" id="date-display"></div>
+</header>
+
+<div class="container">
+
+  <!-- 1. Closing checklist -->
+  <div class="card">
+    <div class="card-title">צ׳קליסט סגירה</div>
+    <div class="checklist" id="checklist"></div>
+    <div class="field-group" style="margin-top: 14px; padding-top: 14px; border-top: 1.5px solid var(--blue-border);">
+      <label class="field-label">הערות</label>
+      <textarea id="checklist-notes" placeholder="..."></textarea>
+    </div>
+  </div>
+
+  <!-- 2. Pastries -->
+  <div class="card">
+    <div class="field-group">
+      <label class="field-label">מאפים שנשארו למחר</label>
+      <textarea id="pastries-left" placeholder="מה נשאר ואיך אוחסן..."></textarea>
+    </div>
+  </div>
+
+  <!-- 3. Sandwich ingredients -->
+  <div class="card">
+    <div class="card-title">יש לכריכים:</div>
+    <div class="toggle-grid" id="ingredients-grid"></div>
+  </div>
+
+  <!-- 4. Team message -->
+  <div class="card">
+    <div class="field-group">
+      <label class="field-label">מסר לצוות</label>
+      <textarea id="team-message" placeholder="איזור להבעה עצמית..."></textarea>
+    </div>
+  </div>
+
+  <button class="send-btn" onclick="sendWhatsApp()">שלח לקבוצה</button>
+
+</div>
+
+<script>
+  const INGREDIENTS = [
+    'לחם במקפיא', 'גאודה', 'ברי', 'גבינת שמנת', 'מלפפון',
+    'עגבניה', 'בצל סגול', 'רוקט', 'ארטישוק',
+    'זיתים', 'ריבה', 'בצל ירוק', 'ביצים'
+  ];
+
+  const CHECKLIST = [
+    'המלאי בארון מלא',
+    'שקיות קפה ארוזות',
+    'יש מספיק קפה במטחנה/דליים',
+    'יש חלב במקרר',
+    'מאפים שנותרו מאוחסנים כראוי',
+    'הכל נקי ויבש (רצפה, כיור כולל מתחת למייבשת כלים)',
+    'יש מגבות נקיות למחר',
+    'עציצים שמחים',
+    'שקיות זבל בכל הפחים כולל שירותים',
+  ];
+
+  const ingState   = Object.fromEntries(INGREDIENTS.map(k => [k, false]));
+  const checkState = Object.fromEntries(CHECKLIST.map(k => [k, false]));
+
+  const now = new Date();
+  document.getElementById('date-display').textContent =
+    now.toLocaleDateString('he-IL', {
+      weekday: 'long', day: 'numeric',
+      month: 'long', year: 'numeric'
+    });
+
+  // Checklist
+  const checklist = document.getElementById('checklist');
+  CHECKLIST.forEach(text => {
+    const item = document.createElement('div');
+    item.className = 'check-item';
+    item.innerHTML = `<span class="c-icon">❌</span><span>${text}</span>`;
+    item.addEventListener('click', () => {
+      checkState[text] = !checkState[text];
+      item.classList.toggle('active', checkState[text]);
+      item.querySelector('.c-icon').textContent = checkState[text] ? '✅' : '❌';
+    });
+    checklist.appendChild(item);
+  });
+
+  // Ingredients grid
+  const grid = document.getElementById('ingredients-grid');
+  INGREDIENTS.forEach(name => {
+    const btn = document.createElement('button');
+    btn.className = 'toggle-btn';
+    btn.innerHTML = `<span class="t-icon">❌</span><span>${name}</span>`;
+    btn.addEventListener('click', () => {
+      ingState[name] = !ingState[name];
+      btn.classList.toggle('active', ingState[name]);
+      btn.querySelector('.t-icon').textContent = ingState[name] ? '✅' : '❌';
+    });
+    grid.appendChild(btn);
+  });
+
+  function buildMessage() {
+    const dateStr = now.toLocaleDateString('he-IL', {
+      weekday: 'long', day: 'numeric',
+      month: 'long', year: 'numeric'
+    });
+
+    const R = '\u200F'; // Right-to-Left Mark — forces RTL per line in WhatsApp
+    const line = s => `${R}${s}`;
+
+    let msg = `${R}*סיכום סגירה — ${dateStr}*\n\n`;
+
+    // Checklist — split into done / not done
+    const done    = CHECKLIST.filter(t => checkState[t]);
+    const notDone = CHECKLIST.filter(t => !checkState[t]);
+
+    msg += `${R}*צ׳קליסט סגירה:*\n`;
+    if (done.length)    msg += `${R}*בוצע:*\n${done.map(t => line(`- ${t}`)).join('\n')}\n`;
+    if (notDone.length) msg += `${R}*לא בוצע:*\n${notDone.map(t => line(`- ${t}`)).join('\n')}\n`;
+
+    const checkNotes = document.getElementById('checklist-notes').value.trim();
+    if (checkNotes) msg += `${R}הערות: ${checkNotes}\n`;
+
+    // Pastries
+    const pastries = document.getElementById('pastries-left').value.trim();
+    if (pastries) msg += `\n${R}*מאפים שנשארו למחר:*\n${R}${pastries}\n`;
+
+    // Ingredients — split into has / missing
+    const has     = INGREDIENTS.filter(n => ingState[n]);
+    const missing = INGREDIENTS.filter(n => !ingState[n]);
+
+    msg += `\n${R}*יש לכריכים:*\n`;
+    if (has.length)     msg += `${R}יש: ${has.join(', ')}\n`;
+    if (missing.length) msg += `${R}חסר: ${missing.join(', ')}\n`;
+
+    // Team message
+    const note = document.getElementById('team-message').value.trim();
+    if (note) msg += `\n${R}*מסר לצוות:*\n${R}${note}\n`;
+
+    return msg;
+  }
+
+  function sendWhatsApp() {
+    window.open(`https://wa.me/?text=${encodeURIComponent(buildMessage())}`, '_blank');
+  }
+</script>
+
+</body>
+</html>

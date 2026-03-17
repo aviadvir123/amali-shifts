@@ -249,7 +249,7 @@
 
   <!-- 3. Sandwich ingredients -->
   <div class="card">
-    <div class="card-title">יש לכריכים:</div>
+    <div class="card-title">כריכים:</div>
     <div class="toggle-grid" id="ingredients-grid"></div>
   </div>
 
@@ -282,7 +282,21 @@
     'יש מגבות נקיות למחר',
     'עציצים שמחים',
     'שקיות זבל בכל הפחים כולל שירותים',
+    'מצרכים לשוקו בקופסאות',
   ];
+
+  const CHECKLIST_NEG = {
+    'המלאי בארון מלא':                                          'המלאי בארון חסר',
+    'שקיות קפה ארוזות':                                         'אין שקיות קפה ארוזות',
+    'יש מספיק קפה במטחנה/דליים':                                'אין מספיק קפה במטחנה/דליים',
+    'יש חלב במקרר':                                             'אין חלב במקרר',
+    'מאפים שנותרו מאוחסנים כראוי':                              'מאפים שנותרו לא מאוחסנים כראוי',
+    'הכל נקי ויבש (רצפה, כיור כולל מתחת למייבש כלים)':         'הכל מלוכלך ורטוב',
+    'יש מגבות נקיות למחר':                                      'אין מגבות נקיות למחר',
+    'עציצים שמחים':                                             'עציצים עומדים למות',
+    'שקיות זבל בכל הפחים כולל שירותים':                         'לא שמנו שקיות זבל בפחים',
+    'מצרכים לשוקו בקופסאות':                                    'אין מצרכים לשוקו בקופסאות',
+  };
 
   const ingState   = Object.fromEntries(INGREDIENTS.map(k => [k, false]));
   const checkState = Object.fromEntries(CHECKLIST.map(k => [k, false]));
@@ -333,13 +347,15 @@
 
     let msg = `${R}*סיכום סגירה — ${dateStr}*\n\n`;
 
-    // Checklist — split into done / not done
-    const done    = CHECKLIST.filter(t => checkState[t]);
+    // Checklist
     const notDone = CHECKLIST.filter(t => !checkState[t]);
 
     msg += `${R}*צ׳קליסט סגירה:*\n`;
-    if (done.length)    msg += `${R}*בוצע:*\n${done.map(t => line(`- ${t}`)).join('\n')}\n`;
-    if (notDone.length) msg += `${R}*לא בוצע:*\n${notDone.map(t => line(`- ${t}`)).join('\n')}\n`;
+    if (notDone.length === 0) {
+      msg += `${R}הכל בוצע\n`;
+    } else {
+      notDone.forEach(t => { msg += line(`- ${CHECKLIST_NEG[t]}`) + '\n'; });
+    }
 
     const checkNotes = document.getElementById('checklist-notes').value.trim();
     if (checkNotes) msg += `${R}הערות: ${checkNotes}\n`;
@@ -348,13 +364,15 @@
     const pastries = document.getElementById('pastries-left').value.trim();
     if (pastries) msg += `\n${R}*מאפים שנשארו למחר:*\n${R}${pastries}\n`;
 
-    // Ingredients — split into has / missing
-    const has     = INGREDIENTS.filter(n => ingState[n]);
+    // Ingredients
     const missing = INGREDIENTS.filter(n => !ingState[n]);
 
-    msg += `\n${R}*יש לכריכים:*\n`;
-    if (has.length)     msg += `${R}יש: ${has.join(', ')}\n`;
-    if (missing.length) msg += `${R}חסר: ${missing.join(', ')}\n`;
+    msg += `\n${R}*כריכים:*\n`;
+    if (missing.length === 0) {
+      msg += `${R}יש את כל המצרכים\n`;
+    } else {
+      msg += `${R}חסר: ${missing.join(', ')}\n`;
+    }
 
     // Team message
     const note = document.getElementById('team-message').value.trim();

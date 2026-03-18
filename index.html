@@ -206,6 +206,41 @@
     }
     .field-error-msg.visible { display: block; }
 
+    /* ── Pastries segmented toggle ── */
+    .seg-toggle {
+      display: flex;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--blue);
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .seg-btn {
+      flex: 1;
+      padding: 11px 8px;
+      border: none;
+      background: var(--white);
+      font-family: var(--font);
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--blue);
+      cursor: pointer;
+      transition: all 0.13s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .seg-btn:first-child { border-left: 1px solid var(--blue-border); }
+    .seg-btn:last-child  { border-right: 1px solid var(--blue-border); }
+
+    .seg-btn.active {
+      background: var(--blue);
+      color: var(--white);
+    }
+
+    .seg-btn:active { opacity: 0.8; }
+
     /* ── Send button ── */
     .send-btn {
       width: 100%;
@@ -252,16 +287,22 @@
 
   <!-- 2. Pastries -->
   <div class="card">
-    <div class="field-group">
-      <label class="field-label">מאפים שנשארו למחר</label>
+    <div class="seg-toggle">
+      <button class="seg-btn active" id="seg-none" onclick="setPastries(false)">נגמרו המאפים</button>
+      <button class="seg-btn"        id="seg-left" onclick="setPastries(true)">נשארו מאפים</button>
+    </div>
+    <div class="field-group" id="pastries-field" style="display:none; margin-top: 14px; padding-top: 14px; border-top: 1.5px solid var(--blue-border);">
       <textarea id="pastries-left" placeholder="מה נשאר ואיך אוחסן..."></textarea>
-      <span class="field-error-msg" id="pastries-error">לא נשאר כלום?</span>
+      <span class="field-error-msg" id="pastries-error">תספרו לנו מה נשאר</span>
     </div>
   </div>
 
   <!-- 3. Sandwich ingredients -->
   <div class="card">
-    <div class="card-title">כריכים:</div>
+    <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
+      <span>מצרכים לכריכים</span>
+      <button id="check-all-ing" onclick="toggleAllIngredients()" style="font-family:var(--font);font-size:0.78rem;font-weight:700;color:var(--blue);background:none;border:1.5px solid var(--blue-border);border-radius:var(--radius-sm);padding:4px 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;">סמן הכל ✅</button>
+    </div>
     <div class="toggle-grid" id="ingredients-grid"></div>
   </div>
 
@@ -312,6 +353,7 @@
 
   const ingState   = Object.fromEntries(INGREDIENTS.map(k => [k, false]));
   const checkState = Object.fromEntries(CHECKLIST.map(k => [k, false]));
+  let pastriesLeft = false;
 
   const now = new Date();
   document.getElementById('date-display').textContent =
@@ -344,9 +386,35 @@
       ingState[name] = !ingState[name];
       btn.classList.toggle('active', ingState[name]);
       btn.querySelector('.t-icon').textContent = ingState[name] ? '✅' : '❌';
+      const allDone = INGREDIENTS.every(n => ingState[n]);
+      document.getElementById('check-all-ing').textContent = allDone ? 'בטל הכל ❌' : 'סמן הכל ✅';
     });
     grid.appendChild(btn);
   });
+
+  // Bulk toggle all ingredients
+  function toggleAllIngredients() {
+    const allDone = INGREDIENTS.every(n => ingState[n]);
+    const target = !allDone;
+    INGREDIENTS.forEach(name => { ingState[name] = target; });
+    document.querySelectorAll('#ingredients-grid .toggle-btn').forEach(btn => {
+      btn.classList.toggle('active', target);
+      btn.querySelector('.t-icon').textContent = target ? '✅' : '❌';
+    });
+    document.getElementById('check-all-ing').textContent = target ? 'בטל הכל ❌' : 'סמן הכל ✅';
+  }
+
+  // Pastries segmented toggle
+  function setPastries(hasLeft) {
+    pastriesLeft = hasLeft;
+    document.getElementById('seg-none').classList.toggle('active', !hasLeft);
+    document.getElementById('seg-left').classList.toggle('active',  hasLeft);
+    document.getElementById('pastries-field').style.display = hasLeft ? 'flex' : 'none';
+    if (!hasLeft) {
+      document.getElementById('pastries-left').classList.remove('field-error');
+      document.getElementById('pastries-error').classList.remove('visible');
+    }
+  }
 
   // Clear error state on input
   document.getElementById('pastries-left').addEventListener('input', () => {
@@ -383,8 +451,12 @@
     if (checkNotes) msg += `${R}הערות: ${checkNotes}\n`;
 
     // Pastries
-    const pastries = document.getElementById('pastries-left').value.trim();
-    if (pastries) msg += `\n${R}*מאפים שנשארו למחר:*\n${R}${pastries}\n`;
+    if (pastriesLeft) {
+      const pastries = document.getElementById('pastries-left').value.trim();
+      msg += `\n${R}*מאפים שנשארו למחר:*\n${R}${pastries}\n`;
+    } else {
+      msg += `\n${R}*מאפים שנשארו למחר:*\n${R}לא נשארו מאפים\n`;
+    }
 
     // Ingredients
     const missing = INGREDIENTS.filter(n => !ingState[n]);
@@ -406,10 +478,10 @@
   function sendWhatsApp() {
     let valid = true;
 
-    // מאפים שנשארו למחר — always mandatory
+    // מאפים שנשארו למחר — mandatory only when toggle is ✅
     const pastriesEl = document.getElementById('pastries-left');
     const pastriesErr = document.getElementById('pastries-error');
-    if (pastriesEl.value.trim().length === 0) {
+    if (pastriesLeft && pastriesEl.value.trim().length === 0) {
       pastriesEl.classList.add('field-error');
       pastriesErr.classList.add('visible');
       valid = false;

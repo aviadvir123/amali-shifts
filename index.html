@@ -196,6 +196,16 @@
     textarea::placeholder { color: var(--gray); font-weight: 400; }
     textarea:focus { border-color: var(--blue); }
 
+    textarea.field-error { border-color: #e53e3e !important; }
+
+    .field-error-msg {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #e53e3e;
+      display: none;
+    }
+    .field-error-msg.visible { display: block; }
+
     /* ── Send button ── */
     .send-btn {
       width: 100%;
@@ -234,8 +244,9 @@
     <div class="card-title">צ׳קליסט סגירה</div>
     <div class="checklist" id="checklist"></div>
     <div class="field-group" style="margin-top: 14px; padding-top: 14px; border-top: 1.5px solid var(--blue-border);">
-      <label class="field-label">הערות</label>
+      <label class="field-label" id="checklist-notes-label">הערות</label>
       <textarea id="checklist-notes" placeholder="..."></textarea>
+      <span class="field-error-msg" id="checklist-notes-error">תסבירו קצת מה חסר</span>
     </div>
   </div>
 
@@ -244,6 +255,7 @@
     <div class="field-group">
       <label class="field-label">מאפים שנשארו למחר</label>
       <textarea id="pastries-left" placeholder="מה נשאר ואיך אוחסן..."></textarea>
+      <span class="field-error-msg" id="pastries-error">לא נשאר כלום?</span>
     </div>
   </div>
 
@@ -336,6 +348,16 @@
     grid.appendChild(btn);
   });
 
+  // Clear error state on input
+  document.getElementById('pastries-left').addEventListener('input', () => {
+    document.getElementById('pastries-left').classList.remove('field-error');
+    document.getElementById('pastries-error').classList.remove('visible');
+  });
+  document.getElementById('checklist-notes').addEventListener('input', () => {
+    document.getElementById('checklist-notes').classList.remove('field-error');
+    document.getElementById('checklist-notes-error').classList.remove('visible');
+  });
+
   function buildMessage() {
     const dateStr = now.toLocaleDateString('he-IL', {
       weekday: 'long', day: 'numeric',
@@ -382,6 +404,35 @@
   }
 
   function sendWhatsApp() {
+    let valid = true;
+
+    // מאפים שנשארו למחר — always mandatory
+    const pastriesEl = document.getElementById('pastries-left');
+    const pastriesErr = document.getElementById('pastries-error');
+    if (pastriesEl.value.trim().length === 0) {
+      pastriesEl.classList.add('field-error');
+      pastriesErr.classList.add('visible');
+      valid = false;
+    } else {
+      pastriesEl.classList.remove('field-error');
+      pastriesErr.classList.remove('visible');
+    }
+
+    // הערות — mandatory if any checklist item is in X (false) state
+    const hasUnchecked = CHECKLIST.some(t => !checkState[t]);
+    const notesEl = document.getElementById('checklist-notes');
+    const notesErr = document.getElementById('checklist-notes-error');
+    if (hasUnchecked && notesEl.value.trim().length === 0) {
+      notesEl.classList.add('field-error');
+      notesErr.classList.add('visible');
+      valid = false;
+    } else {
+      notesEl.classList.remove('field-error');
+      notesErr.classList.remove('visible');
+    }
+
+    if (!valid) return;
+
     window.open(`https://wa.me/?text=${encodeURIComponent(buildMessage())}`, '_blank');
   }
 </script>

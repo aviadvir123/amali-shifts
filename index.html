@@ -373,25 +373,22 @@
     }
     .btn-secondary:active { opacity: 0.8; }
 
-    /* ── Admin panel overlay ── */
+    /* ── Admin panel ── */
     .admin-panel {
       display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      background: var(--bg);
+      width: 100%;
       flex-direction: column;
-      overflow: hidden;
+      align-items: center;
     }
     .admin-panel.open { display: flex; }
 
     .admin-header {
+      width: 100%;
       background: var(--blue);
       padding: 16px 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-shrink: 0;
     }
 
     .admin-header h1 {
@@ -411,8 +408,8 @@
     }
 
     .admin-body {
-      flex: 1;
-      overflow-y: auto;
+      width: 100%;
+      max-width: 480px;
       padding: 16px;
       display: flex;
       flex-direction: column;
@@ -527,6 +524,74 @@
 
     .edit-actions { display: flex; gap: 8px; }
 
+    /* ── Custom section header ── */
+    .admin-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--blue);
+      padding: 8px 10px 8px 14px;
+    }
+
+    .admin-section-header span {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--white);
+      flex: 1;
+    }
+
+    .section-type-badge {
+      font-size: 0.7rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.7);
+      margin-right: 8px;
+    }
+
+    .admin-section-header .icon-btn {
+      color: var(--white);
+      opacity: 0.85;
+    }
+
+    /* ── New section form ── */
+    .new-section-form {
+      background: var(--white);
+      border-radius: var(--radius);
+      border: 2px solid var(--blue);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .new-section-form .form-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--blue);
+      margin-bottom: 2px;
+    }
+
+    .type-toggle {
+      display: flex;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--blue);
+      overflow: hidden;
+    }
+
+    .type-btn {
+      flex: 1;
+      padding: 9px 8px;
+      border: none;
+      background: var(--white);
+      font-family: var(--font);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--blue);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .type-btn:first-child { border-left: 1px solid var(--blue-border); }
+    .type-btn.active { background: var(--blue); color: var(--white); }
+
     /* ── PIN change section ── */
     .pin-change-form {
       padding: 14px;
@@ -535,12 +600,6 @@
       gap: 10px;
     }
 
-    .admin-save-bar {
-      flex-shrink: 0;
-      padding: 12px 16px;
-      background: var(--white);
-      border-top: 2px solid var(--blue-border);
-    }
   </style>
 </head>
 <body>
@@ -583,6 +642,9 @@
     </div>
     <div class="toggle-grid" id="ingredients-grid"></div>
   </div>
+
+  <!-- Custom sections (dynamic) -->
+  <div id="custom-sections-container"></div>
 
   <!-- 4. Team message -->
   <div class="card">
@@ -642,6 +704,13 @@
       <button class="admin-add-btn" onclick="startAddIngredient()">+ הוסף מצרך</button>
     </div>
 
+    <!-- Custom sections -->
+    <div id="admin-custom-sections"></div>
+
+    <!-- Add new section -->
+    <div id="add-section-area"></div>
+    <button class="admin-add-btn" onclick="startAddSection()" id="add-section-btn" style="width:100%; margin:0; border-radius:var(--radius); height:46px; font-size:0.9rem; border-style:dashed;">+ הוסף סקשן חדש</button>
+
     <!-- PIN change section -->
     <div class="admin-section">
       <div class="admin-section-title">שינוי קוד מנהל</div>
@@ -659,10 +728,8 @@
       </div>
     </div>
 
-  </div>
+    <button class="btn-primary" onclick="saveAdminChanges()" style="width:100%; height:50px; font-size:1rem;">שמור שינויים</button>
 
-  <div class="admin-save-bar">
-    <button class="btn-primary" onclick="saveAdminChanges()" style="width:100%;">שמור שינויים</button>
   </div>
 </div>
 
@@ -697,11 +764,12 @@
   function loadConfig() {
     try {
       return {
-        checklist:   JSON.parse(localStorage.getItem('amali_checklist'))   || DEFAULT_CHECKLIST,
-        ingredients: JSON.parse(localStorage.getItem('amali_ingredients')) || DEFAULT_INGREDIENTS,
+        checklist:      JSON.parse(localStorage.getItem('amali_checklist'))       || DEFAULT_CHECKLIST,
+        ingredients:    JSON.parse(localStorage.getItem('amali_ingredients'))     || DEFAULT_INGREDIENTS,
+        customSections: JSON.parse(localStorage.getItem('amali_custom_sections')) || [],
       };
     } catch(e) {
-      return { checklist: DEFAULT_CHECKLIST, ingredients: DEFAULT_INGREDIENTS };
+      return { checklist: DEFAULT_CHECKLIST, ingredients: DEFAULT_INGREDIENTS, customSections: [] };
     }
   }
 
@@ -756,6 +824,54 @@
         document.getElementById('check-all-ing').textContent = allDone ? 'בטל הכל ❌' : 'סמן הכל ✅';
       });
       grid.appendChild(btn);
+    });
+  }
+
+  /* ── Custom sections state & render ── */
+  let customState = {}; // { sectionId: { itemKey: bool } }
+
+  function renderCustomSections() {
+    const container = document.getElementById('custom-sections-container');
+    container.innerHTML = '';
+    customState = {};
+
+    config.customSections.forEach(section => {
+      customState[section.id] = {};
+
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      if (section.type === 'checklist') {
+        card.innerHTML = `<div class="card-title">${section.title}</div><div class="checklist" id="cs-list-${section.id}"></div>`;
+        container.appendChild(card);
+        section.items.forEach(item => {
+          customState[section.id][item.pos] = false;
+          const el = document.createElement('div');
+          el.className = 'check-item';
+          el.innerHTML = `<span class="c-icon">❌</span><span>${item.pos}</span>`;
+          el.addEventListener('click', () => {
+            customState[section.id][item.pos] = !customState[section.id][item.pos];
+            el.classList.toggle('active', customState[section.id][item.pos]);
+            el.querySelector('.c-icon').textContent = customState[section.id][item.pos] ? '✅' : '❌';
+          });
+          document.getElementById(`cs-list-${section.id}`).appendChild(el);
+        });
+      } else {
+        card.innerHTML = `<div class="card-title">${section.title}</div><div class="toggle-grid" id="cs-grid-${section.id}"></div>`;
+        container.appendChild(card);
+        section.items.forEach(name => {
+          customState[section.id][name] = false;
+          const btn = document.createElement('button');
+          btn.className = 'toggle-btn';
+          btn.innerHTML = `<span class="t-icon">❌</span><span>${name}</span>`;
+          btn.addEventListener('click', () => {
+            customState[section.id][name] = !customState[section.id][name];
+            btn.classList.toggle('active', customState[section.id][name]);
+            btn.querySelector('.t-icon').textContent = customState[section.id][name] ? '✅' : '❌';
+          });
+          document.getElementById(`cs-grid-${section.id}`).appendChild(btn);
+        });
+      }
     });
   }
 
@@ -848,6 +964,27 @@
       msg += `${R}חסר: ${missing.join(', ')}\n`;
     }
 
+    // Custom sections
+    config.customSections.forEach(section => {
+      const state = customState[section.id] || {};
+      msg += `\n${R}*${section.title}:*\n`;
+      if (section.type === 'checklist') {
+        const notDone = section.items.filter(item => !state[item.pos]);
+        if (notDone.length === 0) {
+          msg += `${R}הכל בוצע\n`;
+        } else {
+          notDone.forEach(item => { msg += line(`- ${item.neg}`) + '\n'; });
+        }
+      } else {
+        const missing = section.items.filter(name => !state[name]);
+        if (missing.length === 0) {
+          msg += `${R}יש הכל\n`;
+        } else {
+          msg += `${R}חסר: ${missing.join(', ')}\n`;
+        }
+      }
+    });
+
     const note = document.getElementById('team-message').value.trim();
     if (note) msg += `\n${R}*מסר לצוות:*\n${R}${note}\n`;
 
@@ -919,22 +1056,31 @@
   ═══════════════════════════════════════════ */
 
   // Working copies that are saved only when "שמור שינויים" is pressed
-  let draftChecklist   = [];
-  let draftIngredients = [];
+  let draftChecklist      = [];
+  let draftIngredients    = [];
+  let draftCustomSections = [];
 
   function openAdminPanel() {
-    draftChecklist   = config.checklist.map(i => ({ ...i }));
-    draftIngredients = [...config.ingredients];
+    draftChecklist      = config.checklist.map(i => ({ ...i }));
+    draftIngredients    = [...config.ingredients];
+    draftCustomSections = config.customSections.map(s => ({ ...s, items: s.type === 'checklist' ? s.items.map(i => ({ ...i })) : [...s.items] }));
     renderAdminChecklist();
     renderAdminIngredients();
+    renderAdminCustomSections();
     document.getElementById('new-pin-input').value     = '';
     document.getElementById('confirm-pin-input').value = '';
     document.getElementById('pin-change-error').style.display = 'none';
+    document.querySelector('header').style.display = 'none';
+    document.querySelector('.container').style.display = 'none';
     document.getElementById('admin-panel').classList.add('open');
+    window.scrollTo(0, 0);
   }
 
   function closeAdminPanel() {
     document.getElementById('admin-panel').classList.remove('open');
+    document.querySelector('header').style.display = '';
+    document.querySelector('.container').style.display = '';
+    window.scrollTo(0, 0);
   }
 
   /* ── Render admin checklist ── */
@@ -957,9 +1103,22 @@
     });
   }
 
+  /* ── Shared helpers for edit forms ── */
+  function showForm(form, firstInputId) {
+    setTimeout(() => {
+      form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      const input = document.getElementById(firstInputId);
+      if (input) input.focus();
+    }, 50);
+  }
+
+  function highlightEmpty(inputEl) {
+    inputEl.style.borderColor = 'var(--red)';
+    inputEl.addEventListener('input', () => inputEl.style.borderColor = '', { once: true });
+  }
+
   /* ── Edit checklist item inline ── */
   function startEditChecklist(idx) {
-    // Close any open edit forms first
     document.querySelectorAll('.edit-form').forEach(f => f.remove());
 
     const list = document.getElementById('admin-checklist-list');
@@ -985,12 +1144,16 @@
       </div>
     `;
     targetRow.insertAdjacentElement('afterend', form);
+    showForm(form, `edit-cl-pos-${idx}`);
   }
 
   function saveEditChecklist(idx) {
-    const pos = document.getElementById(`edit-cl-pos-${idx}`).value.trim();
-    const neg = document.getElementById(`edit-cl-neg-${idx}`).value.trim();
-    if (!pos || !neg) return;
+    const posEl = document.getElementById(`edit-cl-pos-${idx}`);
+    const negEl = document.getElementById(`edit-cl-neg-${idx}`);
+    const pos = posEl.value.trim();
+    const neg = negEl.value.trim();
+    if (!pos) { highlightEmpty(posEl); posEl.focus(); return; }
+    if (!neg) { highlightEmpty(negEl); negEl.focus(); return; }
     draftChecklist[idx] = { pos, neg };
     cancelEdit();
     renderAdminChecklist();
@@ -1023,13 +1186,16 @@
       </div>
     `;
     list.appendChild(form);
-    document.getElementById('new-cl-pos').focus();
+    showForm(form, 'new-cl-pos');
   }
 
   function saveNewChecklist() {
-    const pos = document.getElementById('new-cl-pos').value.trim();
-    const neg = document.getElementById('new-cl-neg').value.trim();
-    if (!pos || !neg) return;
+    const posEl = document.getElementById('new-cl-pos');
+    const negEl = document.getElementById('new-cl-neg');
+    const pos = posEl.value.trim();
+    const neg = negEl.value.trim();
+    if (!pos) { highlightEmpty(posEl); posEl.focus(); return; }
+    if (!neg) { highlightEmpty(negEl); negEl.focus(); return; }
     draftChecklist.push({ pos, neg });
     cancelEdit();
     renderAdminChecklist();
@@ -1073,11 +1239,13 @@
       </div>
     `;
     targetRow.insertAdjacentElement('afterend', form);
+    showForm(form, `edit-ing-${idx}`);
   }
 
   function saveEditIngredient(idx) {
-    const val = document.getElementById(`edit-ing-${idx}`).value.trim();
-    if (!val) return;
+    const el = document.getElementById(`edit-ing-${idx}`);
+    const val = el.value.trim();
+    if (!val) { highlightEmpty(el); el.focus(); return; }
     draftIngredients[idx] = val;
     cancelEdit();
     renderAdminIngredients();
@@ -1105,12 +1273,13 @@
       </div>
     `;
     list.appendChild(form);
-    document.getElementById('new-ing').focus();
+    showForm(form, 'new-ing');
   }
 
   function saveNewIngredient() {
-    const val = document.getElementById('new-ing').value.trim();
-    if (!val) return;
+    const el = document.getElementById('new-ing');
+    const val = el.value.trim();
+    if (!val) { highlightEmpty(el); el.focus(); return; }
     draftIngredients.push(val);
     cancelEdit();
     renderAdminIngredients();
@@ -1146,13 +1315,260 @@
 
   /* ── Save all changes ── */
   function saveAdminChanges() {
-    config.checklist   = draftChecklist.map(i => ({ ...i }));
-    config.ingredients = [...draftIngredients];
-    localStorage.setItem('amali_checklist',   JSON.stringify(config.checklist));
-    localStorage.setItem('amali_ingredients', JSON.stringify(config.ingredients));
+    config.checklist      = draftChecklist.map(i => ({ ...i }));
+    config.ingredients    = [...draftIngredients];
+    config.customSections = draftCustomSections.map(s => ({ ...s, items: s.type === 'checklist' ? s.items.map(i => ({ ...i })) : [...s.items] }));
+    localStorage.setItem('amali_checklist',       JSON.stringify(config.checklist));
+    localStorage.setItem('amali_ingredients',     JSON.stringify(config.ingredients));
+    localStorage.setItem('amali_custom_sections', JSON.stringify(config.customSections));
     renderChecklist();
     renderIngredients();
+    renderCustomSections();
     closeAdminPanel();
+  }
+
+  /* ═══════════════════════════════════════════
+     ADMIN — CUSTOM SECTIONS
+  ═══════════════════════════════════════════ */
+
+  function renderAdminCustomSections() {
+    const container = document.getElementById('admin-custom-sections');
+    container.innerHTML = '';
+    draftCustomSections.forEach((section, sIdx) => {
+      const typeLabel = section.type === 'checklist' ? 'צ׳קליסט' : 'רשימה';
+      const block = document.createElement('div');
+      block.className = 'admin-section';
+      block.dataset.sidx = sIdx;
+
+      let itemsHtml = section.items.map((item, iIdx) => {
+        const label = section.type === 'checklist' ? item.pos : item;
+        const sub   = section.type === 'checklist' ? `<small>שלילי: ${item.neg}</small>` : '';
+        return `
+          <div class="admin-item" data-iidx="${iIdx}">
+            <div class="admin-item-text">${label}${sub}</div>
+            <button class="icon-btn" onclick="startEditCustomItem(${sIdx},${iIdx})">✏️</button>
+            <button class="icon-btn" onclick="deleteCustomItem(${sIdx},${iIdx})">🗑️</button>
+          </div>`;
+      }).join('');
+
+      block.innerHTML = `
+        <div class="admin-section-header">
+          <span>${section.title}</span>
+          <small class="section-type-badge">${typeLabel}</small>
+          <button class="icon-btn" onclick="startRenameSection(${sIdx})" title="שנה שם">✏️</button>
+          <button class="icon-btn" onclick="deleteCustomSection(${sIdx})" title="מחק סקשן">🗑️</button>
+        </div>
+        <div class="admin-item-list" id="admin-cs-list-${sIdx}">${itemsHtml}</div>
+        <button class="admin-add-btn" onclick="startAddCustomItem(${sIdx})">+ הוסף פריט</button>
+      `;
+      container.appendChild(block);
+    });
+  }
+
+  /* ── Delete section ── */
+  function deleteCustomSection(sIdx) {
+    draftCustomSections.splice(sIdx, 1);
+    renderAdminCustomSections();
+  }
+
+  /* ── Rename section ── */
+  function startRenameSection(sIdx) {
+    document.querySelectorAll('.edit-form').forEach(f => f.remove());
+    const block = document.querySelector(`#admin-custom-sections .admin-section[data-sidx="${sIdx}"]`);
+    if (!block) return;
+    const form = document.createElement('div');
+    form.className = 'edit-form';
+    form.innerHTML = `
+      <div>
+        <div class="edit-form-label">שם הסקשן</div>
+        <input class="edit-input" id="rename-sec-${sIdx}" value="${escHtml(draftCustomSections[sIdx].title)}">
+      </div>
+      <div class="edit-actions">
+        <button class="btn-secondary" onclick="cancelEdit()">ביטול</button>
+        <button class="btn-primary"   onclick="saveRenameSection(${sIdx})">שמור</button>
+      </div>
+    `;
+    block.querySelector('.admin-section-header').insertAdjacentElement('afterend', form);
+    showForm(form, `rename-sec-${sIdx}`);
+  }
+
+  function saveRenameSection(sIdx) {
+    const el  = document.getElementById(`rename-sec-${sIdx}`);
+    const val = el.value.trim();
+    if (!val) { highlightEmpty(el); el.focus(); return; }
+    draftCustomSections[sIdx].title = val;
+    cancelEdit();
+    renderAdminCustomSections();
+  }
+
+  /* ── Add item to custom section ── */
+  function startAddCustomItem(sIdx) {
+    document.querySelectorAll('.edit-form').forEach(f => f.remove());
+    const list = document.getElementById(`admin-cs-list-${sIdx}`);
+    if (!list) return;
+    const isChecklist = draftCustomSections[sIdx].type === 'checklist';
+    const form = document.createElement('div');
+    form.className = 'edit-form';
+    form.innerHTML = isChecklist ? `
+      <div>
+        <div class="edit-form-label">טקסט ✅ (כן, בוצע)</div>
+        <input class="edit-input" id="new-ci-pos-${sIdx}" placeholder="למשל: הדלת נעולה">
+      </div>
+      <div>
+        <div class="edit-form-label">טקסט ❌ (לא בוצע)</div>
+        <input class="edit-input" id="new-ci-neg-${sIdx}" placeholder="למשל: הדלת לא נעולה">
+      </div>
+      <div class="edit-actions">
+        <button class="btn-secondary" onclick="cancelEdit()">ביטול</button>
+        <button class="btn-primary"   onclick="saveAddCustomItem(${sIdx})">הוסף</button>
+      </div>
+    ` : `
+      <div>
+        <div class="edit-form-label">שם פריט</div>
+        <input class="edit-input" id="new-ci-name-${sIdx}" placeholder="למשל: חמאה">
+      </div>
+      <div class="edit-actions">
+        <button class="btn-secondary" onclick="cancelEdit()">ביטול</button>
+        <button class="btn-primary"   onclick="saveAddCustomItem(${sIdx})">הוסף</button>
+      </div>
+    `;
+    list.appendChild(form);
+    showForm(form, isChecklist ? `new-ci-pos-${sIdx}` : `new-ci-name-${sIdx}`);
+  }
+
+  function saveAddCustomItem(sIdx) {
+    const section = draftCustomSections[sIdx];
+    if (section.type === 'checklist') {
+      const posEl = document.getElementById(`new-ci-pos-${sIdx}`);
+      const negEl = document.getElementById(`new-ci-neg-${sIdx}`);
+      const pos = posEl.value.trim(), neg = negEl.value.trim();
+      if (!pos) { highlightEmpty(posEl); posEl.focus(); return; }
+      if (!neg) { highlightEmpty(negEl); negEl.focus(); return; }
+      section.items.push({ pos, neg });
+    } else {
+      const el  = document.getElementById(`new-ci-name-${sIdx}`);
+      const val = el.value.trim();
+      if (!val) { highlightEmpty(el); el.focus(); return; }
+      section.items.push(val);
+    }
+    cancelEdit();
+    renderAdminCustomSections();
+  }
+
+  /* ── Edit item in custom section ── */
+  function startEditCustomItem(sIdx, iIdx) {
+    document.querySelectorAll('.edit-form').forEach(f => f.remove());
+    const list = document.getElementById(`admin-cs-list-${sIdx}`);
+    if (!list) return;
+    const rows = list.querySelectorAll('.admin-item');
+    const targetRow = Array.from(rows).find(r => parseInt(r.dataset.iidx) === iIdx);
+    if (!targetRow) return;
+
+    const section     = draftCustomSections[sIdx];
+    const isChecklist = section.type === 'checklist';
+    const item        = section.items[iIdx];
+    const form        = document.createElement('div');
+    form.className    = 'edit-form';
+    form.innerHTML    = isChecklist ? `
+      <div>
+        <div class="edit-form-label">טקסט ✅ (כן, בוצע)</div>
+        <input class="edit-input" id="edit-ci-pos-${sIdx}-${iIdx}" value="${escHtml(item.pos)}">
+      </div>
+      <div>
+        <div class="edit-form-label">טקסט ❌ (לא בוצע)</div>
+        <input class="edit-input" id="edit-ci-neg-${sIdx}-${iIdx}" value="${escHtml(item.neg)}">
+      </div>
+      <div class="edit-actions">
+        <button class="btn-secondary" onclick="cancelEdit()">ביטול</button>
+        <button class="btn-primary"   onclick="saveEditCustomItem(${sIdx},${iIdx})">שמור</button>
+      </div>
+    ` : `
+      <div>
+        <div class="edit-form-label">שם פריט</div>
+        <input class="edit-input" id="edit-ci-name-${sIdx}-${iIdx}" value="${escHtml(item)}">
+      </div>
+      <div class="edit-actions">
+        <button class="btn-secondary" onclick="cancelEdit()">ביטול</button>
+        <button class="btn-primary"   onclick="saveEditCustomItem(${sIdx},${iIdx})">שמור</button>
+      </div>
+    `;
+    targetRow.insertAdjacentElement('afterend', form);
+    showForm(form, isChecklist ? `edit-ci-pos-${sIdx}-${iIdx}` : `edit-ci-name-${sIdx}-${iIdx}`);
+  }
+
+  function saveEditCustomItem(sIdx, iIdx) {
+    const section = draftCustomSections[sIdx];
+    if (section.type === 'checklist') {
+      const posEl = document.getElementById(`edit-ci-pos-${sIdx}-${iIdx}`);
+      const negEl = document.getElementById(`edit-ci-neg-${sIdx}-${iIdx}`);
+      const pos = posEl.value.trim(), neg = negEl.value.trim();
+      if (!pos) { highlightEmpty(posEl); posEl.focus(); return; }
+      if (!neg) { highlightEmpty(negEl); negEl.focus(); return; }
+      section.items[iIdx] = { pos, neg };
+    } else {
+      const el  = document.getElementById(`edit-ci-name-${sIdx}-${iIdx}`);
+      const val = el.value.trim();
+      if (!val) { highlightEmpty(el); el.focus(); return; }
+      section.items[iIdx] = val;
+    }
+    cancelEdit();
+    renderAdminCustomSections();
+  }
+
+  function deleteCustomItem(sIdx, iIdx) {
+    draftCustomSections[sIdx].items.splice(iIdx, 1);
+    renderAdminCustomSections();
+  }
+
+  /* ── Add new section ── */
+  let newSectionType = 'checklist';
+
+  function startAddSection() {
+    document.querySelectorAll('.edit-form').forEach(f => f.remove());
+    document.getElementById('add-section-btn').style.display = 'none';
+    newSectionType = 'checklist';
+    const area = document.getElementById('add-section-area');
+    area.innerHTML = `
+      <div class="new-section-form">
+        <div class="form-title">סקשן חדש</div>
+        <div>
+          <div class="edit-form-label">שם הסקשן</div>
+          <input class="edit-input" id="new-section-title" placeholder="למשל: ציוד מטבח">
+        </div>
+        <div>
+          <div class="edit-form-label">סוג</div>
+          <div class="type-toggle">
+            <button class="type-btn active" id="type-checklist" onclick="setNewSectionType('checklist')">צ׳קליסט ✅❌</button>
+            <button class="type-btn"        id="type-grid"      onclick="setNewSectionType('grid')">רשימת פריטים</button>
+          </div>
+        </div>
+        <div class="edit-actions">
+          <button class="btn-secondary" onclick="cancelAddSection()">ביטול</button>
+          <button class="btn-primary"   onclick="saveNewSection()">צור סקשן</button>
+        </div>
+      </div>
+    `;
+    showForm(area.firstElementChild, 'new-section-title');
+  }
+
+  function setNewSectionType(type) {
+    newSectionType = type;
+    document.getElementById('type-checklist').classList.toggle('active', type === 'checklist');
+    document.getElementById('type-grid').classList.toggle('active',      type === 'grid');
+  }
+
+  function cancelAddSection() {
+    document.getElementById('add-section-area').innerHTML = '';
+    document.getElementById('add-section-btn').style.display = '';
+  }
+
+  function saveNewSection() {
+    const titleEl = document.getElementById('new-section-title');
+    const title   = titleEl.value.trim();
+    if (!title) { highlightEmpty(titleEl); titleEl.focus(); return; }
+    draftCustomSections.push({ id: 'sec_' + Date.now(), title, type: newSectionType, items: [] });
+    cancelAddSection();
+    renderAdminCustomSections();
   }
 
   /* ── Utility ── */
@@ -1165,6 +1581,7 @@
   ═══════════════════════════════════════════ */
   renderChecklist();
   renderIngredients();
+  renderCustomSections();
 </script>
 
 </body>

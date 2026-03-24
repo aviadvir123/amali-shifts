@@ -16,6 +16,7 @@
       --white:       #FFFFFF;
       --gray:        #D0D0D0;
       --gray-dark:   #888;
+      --red:         #e53e3e;
       --radius:      12px;
       --radius-sm:   8px;
       --font: 'Alef', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -263,6 +264,283 @@
     }
 
     .send-btn:active { opacity: 0.85; }
+
+    /* ── Admin gear trigger ── */
+    .admin-trigger {
+      margin-top: 8px;
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      color: var(--gray);
+      cursor: pointer;
+      padding: 8px;
+      -webkit-tap-highlight-color: transparent;
+      opacity: 0.45;
+      transition: opacity 0.15s;
+    }
+    .admin-trigger:hover { opacity: 0.8; }
+
+    /* ── Overlay base ── */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.45);
+      padding: 20px;
+    }
+    .overlay.open { display: flex; }
+
+    /* ── PIN overlay ── */
+    .pin-box {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      width: 100%;
+      max-width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      text-align: center;
+    }
+
+    .pin-box h2 {
+      font-size: 1rem;
+      color: var(--blue);
+    }
+
+    .pin-input {
+      font-family: var(--font);
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: 0.4em;
+      text-align: center;
+      border: 2px solid var(--blue-border);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      outline: none;
+      color: var(--blue);
+      width: 100%;
+      direction: ltr;
+    }
+    .pin-input:focus { border-color: var(--blue); }
+    .pin-input.pin-error { border-color: var(--red); animation: shake 0.3s ease; }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25%      { transform: translateX(-6px); }
+      75%      { transform: translateX(6px); }
+    }
+
+    .pin-error-msg {
+      font-size: 0.8rem;
+      color: var(--red);
+      display: none;
+    }
+    .pin-error-msg.visible { display: block; }
+
+    .pin-actions { display: flex; gap: 10px; }
+
+    .btn-primary {
+      flex: 1;
+      height: 44px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: var(--blue);
+      color: var(--white);
+      font-family: var(--font);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.13s;
+    }
+    .btn-primary:active { opacity: 0.8; }
+
+    .btn-secondary {
+      flex: 1;
+      height: 44px;
+      border: 2px solid var(--blue-border);
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      color: var(--blue);
+      font-family: var(--font);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.13s;
+    }
+    .btn-secondary:active { opacity: 0.8; }
+
+    /* ── Admin panel overlay ── */
+    .admin-panel {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: var(--bg);
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .admin-panel.open { display: flex; }
+
+    .admin-header {
+      background: var(--blue);
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .admin-header h1 {
+      color: var(--white);
+      font-size: 1rem;
+    }
+
+    .admin-close {
+      background: none;
+      border: none;
+      color: var(--white);
+      font-size: 1.4rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      line-height: 1;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .admin-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .admin-section {
+      background: var(--white);
+      border-radius: var(--radius);
+      border: 2px solid var(--blue);
+      overflow: hidden;
+    }
+
+    .admin-section-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--white);
+      background: var(--blue);
+      padding: 10px 14px;
+    }
+
+    .admin-item-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .admin-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      border-bottom: 1.5px solid var(--blue-border);
+    }
+    .admin-item:last-child { border-bottom: none; }
+
+    .admin-item-text {
+      flex: 1;
+      font-size: 0.85rem;
+      color: var(--blue);
+      line-height: 1.4;
+    }
+
+    .admin-item-text small {
+      display: block;
+      font-weight: 400;
+      font-size: 0.75rem;
+      color: var(--gray-dark);
+      margin-top: 2px;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 4px;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+      line-height: 1;
+    }
+    .icon-btn:active { opacity: 0.6; }
+
+    .admin-add-btn {
+      width: calc(100% - 28px);
+      margin: 10px 14px;
+      height: 38px;
+      border: 2px dashed var(--blue-border);
+      border-radius: var(--radius-sm);
+      background: none;
+      color: var(--blue);
+      font-family: var(--font);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: border-color 0.13s, background 0.13s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .admin-add-btn:active { background: var(--bg); }
+
+    /* ── Edit form inside admin panel ── */
+    .edit-form {
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-bottom: 1.5px solid var(--blue-border);
+      background: #f0f4fa;
+    }
+
+    .edit-form-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--blue);
+      margin-bottom: 2px;
+    }
+
+    .edit-input {
+      font-family: var(--font);
+      font-size: 0.88rem;
+      font-weight: 400;
+      color: var(--blue);
+      border: 2px solid var(--blue-border);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      outline: none;
+      width: 100%;
+      text-align: right;
+      direction: rtl;
+      background: var(--white);
+    }
+    .edit-input:focus { border-color: var(--blue); }
+
+    .edit-actions { display: flex; gap: 8px; }
+
+    /* ── PIN change section ── */
+    .pin-change-form {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .admin-save-bar {
+      flex-shrink: 0;
+      padding: 12px 16px;
+      background: var(--white);
+      border-top: 2px solid var(--blue-border);
+    }
   </style>
 </head>
 <body>
@@ -316,45 +594,174 @@
 
   <button class="send-btn" onclick="sendWhatsApp()">שלח לקבוצה</button>
 
+  <button class="admin-trigger" onclick="openPinPrompt()" title="ניהול">⚙</button>
+
+</div>
+
+<!-- PIN Prompt Overlay -->
+<div class="overlay" id="pin-overlay">
+  <div class="pin-box">
+    <h2>כניסת מנהל</h2>
+    <input
+      class="pin-input"
+      id="pin-input"
+      type="password"
+      inputmode="numeric"
+      maxlength="6"
+      placeholder="••••"
+      onkeydown="if(event.key==='Enter') checkPin()"
+    >
+    <span class="pin-error-msg" id="pin-error-msg">קוד שגוי, נסה שוב</span>
+    <div class="pin-actions">
+      <button class="btn-secondary" onclick="closePinPrompt()">ביטול</button>
+      <button class="btn-primary"   onclick="checkPin()">כניסה</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Panel -->
+<div class="admin-panel" id="admin-panel">
+  <div class="admin-header">
+    <h1>⚙ פאנל ניהול</h1>
+    <button class="admin-close" onclick="closeAdminPanel()">✕</button>
+  </div>
+
+  <div class="admin-body">
+
+    <!-- Checklist section -->
+    <div class="admin-section">
+      <div class="admin-section-title">צ׳קליסט סגירה</div>
+      <div class="admin-item-list" id="admin-checklist-list"></div>
+      <button class="admin-add-btn" onclick="startAddChecklist()">+ הוסף פריט</button>
+    </div>
+
+    <!-- Ingredients section -->
+    <div class="admin-section">
+      <div class="admin-section-title">מצרכים לכריכים</div>
+      <div class="admin-item-list" id="admin-ingredients-list"></div>
+      <button class="admin-add-btn" onclick="startAddIngredient()">+ הוסף מצרך</button>
+    </div>
+
+    <!-- PIN change section -->
+    <div class="admin-section">
+      <div class="admin-section-title">שינוי קוד מנהל</div>
+      <div class="pin-change-form">
+        <div>
+          <div class="edit-form-label">קוד חדש</div>
+          <input class="edit-input" id="new-pin-input" type="password" inputmode="numeric" maxlength="6" placeholder="הכנס קוד חדש" style="direction:ltr; text-align:center; letter-spacing:0.3em;">
+        </div>
+        <div>
+          <div class="edit-form-label">אישור קוד</div>
+          <input class="edit-input" id="confirm-pin-input" type="password" inputmode="numeric" maxlength="6" placeholder="הכנס שוב" style="direction:ltr; text-align:center; letter-spacing:0.3em;">
+        </div>
+        <span class="pin-error-msg" id="pin-change-error" style="display:none;"></span>
+        <button class="btn-primary" onclick="changePin()">שמור קוד חדש</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="admin-save-bar">
+    <button class="btn-primary" onclick="saveAdminChanges()" style="width:100%;">שמור שינויים</button>
+  </div>
 </div>
 
 <script>
-  const INGREDIENTS = [
+  /* ═══════════════════════════════════════════
+     DEFAULTS
+  ═══════════════════════════════════════════ */
+  const DEFAULT_CHECKLIST = [
+    { pos: 'המלאי בארון מלא',                                         neg: 'המלאי בארון חסר' },
+    { pos: 'שקיות קפה ארוזות',                                        neg: 'אין שקיות קפה ארוזות' },
+    { pos: 'יש מספיק קפה במטחנה/דליים',                               neg: 'אין מספיק קפה במטחנה/דליים' },
+    { pos: 'יש חלב במקרר',                                            neg: 'אין חלב במקרר' },
+    { pos: 'מאפים שנותרו מאוחסנים כראוי',                             neg: 'מאפים שנותרו לא מאוחסנים כראוי' },
+    { pos: 'הכל נקי ויבש (רצפה, כיור כולל מתחת למייבש כלים)',        neg: 'הכל מלוכלך ורטוב' },
+    { pos: 'יש מגבות נקיות למחר',                                     neg: 'אין מגבות נקיות למחר' },
+    { pos: 'עציצים שמחים',                                            neg: 'עציצים עומדים למות' },
+    { pos: 'שקיות זבל בכל הפחים כולל שירותים',                        neg: 'לא שמנו שקיות זבל בפחים' },
+    { pos: 'מצרכים לשוקו בקופסאות',                                   neg: 'אין מצרכים לשוקו בקופסאות' },
+  ];
+
+  const DEFAULT_INGREDIENTS = [
     'גאודה', 'ברי', 'גבינת שמנת', 'מלפפון',
     'עגבניה', 'בצל סגול', 'רוקט', 'ארטישוק',
     'זיתים', 'ריבה', 'בצל ירוק', 'ביצים', 'סלמון'
   ];
 
-  const CHECKLIST = [
-    'המלאי בארון מלא',
-    'שקיות קפה ארוזות',
-    'יש מספיק קפה במטחנה/דליים',
-    'יש חלב במקרר',
-    'מאפים שנותרו מאוחסנים כראוי',
-    'הכל נקי ויבש (רצפה, כיור כולל מתחת למייבש כלים)',
-    'יש מגבות נקיות למחר',
-    'עציצים שמחים',
-    'שקיות זבל בכל הפחים כולל שירותים',
-    'מצרכים לשוקו בקופסאות',
-  ];
+  const DEFAULT_PIN = '1234';
 
-  const CHECKLIST_NEG = {
-    'המלאי בארון מלא':                                          'המלאי בארון חסר',
-    'שקיות קפה ארוזות':                                         'אין שקיות קפה ארוזות',
-    'יש מספיק קפה במטחנה/דליים':                                'אין מספיק קפה במטחנה/דליים',
-    'יש חלב במקרר':                                             'אין חלב במקרר',
-    'מאפים שנותרו מאוחסנים כראוי':                              'מאפים שנותרו לא מאוחסנים כראוי',
-    'הכל נקי ויבש (רצפה, כיור כולל מתחת למייבש כלים)':         'הכל מלוכלך ורטוב',
-    'יש מגבות נקיות למחר':                                      'אין מגבות נקיות למחר',
-    'עציצים שמחים':                                             'עציצים עומדים למות',
-    'שקיות זבל בכל הפחים כולל שירותים':                         'לא שמנו שקיות זבל בפחים',
-    'מצרכים לשוקו בקופסאות':                                    'אין מצרכים לשוקו בקופסאות',
-  };
+  /* ═══════════════════════════════════════════
+     LOAD CONFIG
+  ═══════════════════════════════════════════ */
+  function loadConfig() {
+    try {
+      return {
+        checklist:   JSON.parse(localStorage.getItem('amali_checklist'))   || DEFAULT_CHECKLIST,
+        ingredients: JSON.parse(localStorage.getItem('amali_ingredients')) || DEFAULT_INGREDIENTS,
+      };
+    } catch(e) {
+      return { checklist: DEFAULT_CHECKLIST, ingredients: DEFAULT_INGREDIENTS };
+    }
+  }
 
-  const ingState   = Object.fromEntries(INGREDIENTS.map(k => [k, false]));
-  const checkState = Object.fromEntries(CHECKLIST.map(k => [k, false]));
+  function getPin() {
+    return localStorage.getItem('amali_admin_pin') || DEFAULT_PIN;
+  }
+
+  let config = loadConfig();
+
+  /* ═══════════════════════════════════════════
+     FORM STATE
+  ═══════════════════════════════════════════ */
+  let ingState   = {};
+  let checkState = {};
   let pastriesLeft = false;
 
+  /* ═══════════════════════════════════════════
+     RENDER MAIN FORM
+  ═══════════════════════════════════════════ */
+  function renderChecklist() {
+    const container = document.getElementById('checklist');
+    container.innerHTML = '';
+    checkState = {};
+    config.checklist.forEach(item => {
+      checkState[item.pos] = false;
+      const el = document.createElement('div');
+      el.className = 'check-item';
+      el.innerHTML = `<span class="c-icon">❌</span><span>${item.pos}</span>`;
+      el.addEventListener('click', () => {
+        checkState[item.pos] = !checkState[item.pos];
+        el.classList.toggle('active', checkState[item.pos]);
+        el.querySelector('.c-icon').textContent = checkState[item.pos] ? '✅' : '❌';
+      });
+      container.appendChild(el);
+    });
+  }
+
+  function renderIngredients() {
+    const grid = document.getElementById('ingredients-grid');
+    grid.innerHTML = '';
+    ingState = {};
+    config.ingredients.forEach(name => {
+      ingState[name] = false;
+      const btn = document.createElement('button');
+      btn.className = 'toggle-btn';
+      btn.innerHTML = `<span class="t-icon">❌</span><span>${name}</span>`;
+      btn.addEventListener('click', () => {
+        ingState[name] = !ingState[name];
+        btn.classList.toggle('active', ingState[name]);
+        btn.querySelector('.t-icon').textContent = ingState[name] ? '✅' : '❌';
+        const allDone = config.ingredients.every(n => ingState[n]);
+        document.getElementById('check-all-ing').textContent = allDone ? 'בטל הכל ❌' : 'סמן הכל ✅';
+      });
+      grid.appendChild(btn);
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     DATE
+  ═══════════════════════════════════════════ */
   const now = new Date();
   document.getElementById('date-display').textContent =
     now.toLocaleDateString('he-IL', {
@@ -362,41 +769,13 @@
       month: 'long', year: 'numeric'
     });
 
-  // Checklist
-  const checklist = document.getElementById('checklist');
-  CHECKLIST.forEach(text => {
-    const item = document.createElement('div');
-    item.className = 'check-item';
-    item.innerHTML = `<span class="c-icon">❌</span><span>${text}</span>`;
-    item.addEventListener('click', () => {
-      checkState[text] = !checkState[text];
-      item.classList.toggle('active', checkState[text]);
-      item.querySelector('.c-icon').textContent = checkState[text] ? '✅' : '❌';
-    });
-    checklist.appendChild(item);
-  });
-
-  // Ingredients grid
-  const grid = document.getElementById('ingredients-grid');
-  INGREDIENTS.forEach(name => {
-    const btn = document.createElement('button');
-    btn.className = 'toggle-btn';
-    btn.innerHTML = `<span class="t-icon">❌</span><span>${name}</span>`;
-    btn.addEventListener('click', () => {
-      ingState[name] = !ingState[name];
-      btn.classList.toggle('active', ingState[name]);
-      btn.querySelector('.t-icon').textContent = ingState[name] ? '✅' : '❌';
-      const allDone = INGREDIENTS.every(n => ingState[n]);
-      document.getElementById('check-all-ing').textContent = allDone ? 'בטל הכל ❌' : 'סמן הכל ✅';
-    });
-    grid.appendChild(btn);
-  });
-
-  // Bulk toggle all ingredients
+  /* ═══════════════════════════════════════════
+     INGREDIENT BULK TOGGLE
+  ═══════════════════════════════════════════ */
   function toggleAllIngredients() {
-    const allDone = INGREDIENTS.every(n => ingState[n]);
+    const allDone = config.ingredients.every(n => ingState[n]);
     const target = !allDone;
-    INGREDIENTS.forEach(name => { ingState[name] = target; });
+    config.ingredients.forEach(name => { ingState[name] = target; });
     document.querySelectorAll('#ingredients-grid .toggle-btn').forEach(btn => {
       btn.classList.toggle('active', target);
       btn.querySelector('.t-icon').textContent = target ? '✅' : '❌';
@@ -404,7 +783,9 @@
     document.getElementById('check-all-ing').textContent = target ? 'בטל הכל ❌' : 'סמן הכל ✅';
   }
 
-  // Pastries segmented toggle
+  /* ═══════════════════════════════════════════
+     PASTRIES
+  ═══════════════════════════════════════════ */
   function setPastries(hasLeft) {
     pastriesLeft = hasLeft;
     document.getElementById('seg-none').classList.toggle('active', !hasLeft);
@@ -416,7 +797,6 @@
     }
   }
 
-  // Clear error state on input
   document.getElementById('pastries-left').addEventListener('input', () => {
     document.getElementById('pastries-left').classList.remove('field-error');
     document.getElementById('pastries-error').classList.remove('visible');
@@ -426,31 +806,32 @@
     document.getElementById('checklist-notes-error').classList.remove('visible');
   });
 
+  /* ═══════════════════════════════════════════
+     WHATSAPP SEND
+  ═══════════════════════════════════════════ */
   function buildMessage() {
     const dateStr = now.toLocaleDateString('he-IL', {
       weekday: 'long', day: 'numeric',
       month: 'long', year: 'numeric'
     });
 
-    const R = '\u200F'; // Right-to-Left Mark — forces RTL per line in WhatsApp
+    const R = '\u200F';
     const line = s => `${R}${s}`;
 
     let msg = `${R}*סיכום סגירה — ${dateStr}*\n\n`;
 
-    // Checklist
-    const notDone = CHECKLIST.filter(t => !checkState[t]);
+    const notDone = config.checklist.filter(item => !checkState[item.pos]);
 
     msg += `${R}*צ׳קליסט סגירה:*\n`;
     if (notDone.length === 0) {
       msg += `${R}הכל בוצע\n`;
     } else {
-      notDone.forEach(t => { msg += line(`- ${CHECKLIST_NEG[t]}`) + '\n'; });
+      notDone.forEach(item => { msg += line(`- ${item.neg}`) + '\n'; });
     }
 
     const checkNotes = document.getElementById('checklist-notes').value.trim();
     if (checkNotes) msg += `${R}הערות: ${checkNotes}\n`;
 
-    // Pastries
     if (pastriesLeft) {
       const pastries = document.getElementById('pastries-left').value.trim();
       msg += `\n${R}*מאפים שנשארו למחר:*\n${R}${pastries}\n`;
@@ -458,8 +839,7 @@
       msg += `\n${R}*מאפים שנשארו למחר:*\n${R}לא נשארו מאפים\n`;
     }
 
-    // Ingredients
-    const missing = INGREDIENTS.filter(n => !ingState[n]);
+    const missing = config.ingredients.filter(n => !ingState[n]);
 
     msg += `\n${R}*כריכים:*\n`;
     if (missing.length === 0) {
@@ -468,7 +848,6 @@
       msg += `${R}חסר: ${missing.join(', ')}\n`;
     }
 
-    // Team message
     const note = document.getElementById('team-message').value.trim();
     if (note) msg += `\n${R}*מסר לצוות:*\n${R}${note}\n`;
 
@@ -478,8 +857,7 @@
   function sendWhatsApp() {
     let valid = true;
 
-    // מאפים שנשארו למחר — mandatory only when toggle is ✅
-    const pastriesEl = document.getElementById('pastries-left');
+    const pastriesEl  = document.getElementById('pastries-left');
     const pastriesErr = document.getElementById('pastries-error');
     if (pastriesLeft && pastriesEl.value.trim().length === 0) {
       pastriesEl.classList.add('field-error');
@@ -490,9 +868,8 @@
       pastriesErr.classList.remove('visible');
     }
 
-    // הערות — mandatory if any checklist item is in X (false) state
-    const hasUnchecked = CHECKLIST.some(t => !checkState[t]);
-    const notesEl = document.getElementById('checklist-notes');
+    const hasUnchecked = config.checklist.some(item => !checkState[item.pos]);
+    const notesEl  = document.getElementById('checklist-notes');
     const notesErr = document.getElementById('checklist-notes-error');
     if (hasUnchecked && notesEl.value.trim().length === 0) {
       notesEl.classList.add('field-error');
@@ -507,6 +884,287 @@
 
     window.open(`https://wa.me/?text=${encodeURIComponent(buildMessage())}`, '_blank');
   }
+
+  /* ═══════════════════════════════════════════
+     PIN PROMPT
+  ═══════════════════════════════════════════ */
+  function openPinPrompt() {
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-input').classList.remove('pin-error');
+    document.getElementById('pin-error-msg').classList.remove('visible');
+    document.getElementById('pin-overlay').classList.add('open');
+    setTimeout(() => document.getElementById('pin-input').focus(), 80);
+  }
+
+  function closePinPrompt() {
+    document.getElementById('pin-overlay').classList.remove('open');
+  }
+
+  function checkPin() {
+    const val = document.getElementById('pin-input').value.trim();
+    if (val === getPin()) {
+      closePinPrompt();
+      openAdminPanel();
+    } else {
+      const inp = document.getElementById('pin-input');
+      inp.classList.add('pin-error');
+      document.getElementById('pin-error-msg').classList.add('visible');
+      inp.value = '';
+      setTimeout(() => inp.classList.remove('pin-error'), 400);
+    }
+  }
+
+  /* ═══════════════════════════════════════════
+     ADMIN PANEL
+  ═══════════════════════════════════════════ */
+
+  // Working copies that are saved only when "שמור שינויים" is pressed
+  let draftChecklist   = [];
+  let draftIngredients = [];
+
+  function openAdminPanel() {
+    draftChecklist   = config.checklist.map(i => ({ ...i }));
+    draftIngredients = [...config.ingredients];
+    renderAdminChecklist();
+    renderAdminIngredients();
+    document.getElementById('new-pin-input').value     = '';
+    document.getElementById('confirm-pin-input').value = '';
+    document.getElementById('pin-change-error').style.display = 'none';
+    document.getElementById('admin-panel').classList.add('open');
+  }
+
+  function closeAdminPanel() {
+    document.getElementById('admin-panel').classList.remove('open');
+  }
+
+  /* ── Render admin checklist ── */
+  function renderAdminChecklist() {
+    const list = document.getElementById('admin-checklist-list');
+    list.innerHTML = '';
+    draftChecklist.forEach((item, idx) => {
+      const row = document.createElement('div');
+      row.className = 'admin-item';
+      row.dataset.idx = idx;
+      row.innerHTML = `
+        <div class="admin-item-text">
+          ${item.pos}
+          <small>שלילי: ${item.neg}</small>
+        </div>
+        <button class="icon-btn" onclick="startEditChecklist(${idx})" title="עריכה">✏️</button>
+        <button class="icon-btn" onclick="deleteChecklist(${idx})" title="מחיקה">🗑️</button>
+      `;
+      list.appendChild(row);
+    });
+  }
+
+  /* ── Edit checklist item inline ── */
+  function startEditChecklist(idx) {
+    // Close any open edit forms first
+    document.querySelectorAll('.edit-form').forEach(f => f.remove());
+
+    const list = document.getElementById('admin-checklist-list');
+    const rows = list.querySelectorAll('.admin-item');
+    const targetRow = Array.from(rows).find(r => parseInt(r.dataset.idx) === idx);
+    if (!targetRow) return;
+
+    const item = draftChecklist[idx];
+    const form = document.createElement('div');
+    form.className = 'edit-form';
+    form.innerHTML = `
+      <div>
+        <div class="edit-form-label">טקסט ✅ (כן, בוצע)</div>
+        <input class="edit-input" id="edit-cl-pos-${idx}" value="${escHtml(item.pos)}" placeholder="טקסט חיובי...">
+      </div>
+      <div>
+        <div class="edit-form-label">טקסט ❌ (לא בוצע)</div>
+        <input class="edit-input" id="edit-cl-neg-${idx}" value="${escHtml(item.neg)}" placeholder="טקסט שלילי...">
+      </div>
+      <div class="edit-actions">
+        <button class="btn-secondary" onclick="cancelEdit()">ביטול</button>
+        <button class="btn-primary"   onclick="saveEditChecklist(${idx})">שמור</button>
+      </div>
+    `;
+    targetRow.insertAdjacentElement('afterend', form);
+  }
+
+  function saveEditChecklist(idx) {
+    const pos = document.getElementById(`edit-cl-pos-${idx}`).value.trim();
+    const neg = document.getElementById(`edit-cl-neg-${idx}`).value.trim();
+    if (!pos || !neg) return;
+    draftChecklist[idx] = { pos, neg };
+    cancelEdit();
+    renderAdminChecklist();
+  }
+
+  function deleteChecklist(idx) {
+    draftChecklist.splice(idx, 1);
+    renderAdminChecklist();
+  }
+
+  /* ── Add new checklist item ── */
+  function startAddChecklist() {
+    document.querySelectorAll('.edit-form').forEach(f => f.remove());
+
+    const list = document.getElementById('admin-checklist-list');
+    const form = document.createElement('div');
+    form.className = 'edit-form';
+    form.innerHTML = `
+      <div>
+        <div class="edit-form-label">טקסט ✅ (כן, בוצע)</div>
+        <input class="edit-input" id="new-cl-pos" placeholder="למשל: הדלת נעולה">
+      </div>
+      <div>
+        <div class="edit-form-label">טקסט ❌ (לא בוצע)</div>
+        <input class="edit-input" id="new-cl-neg" placeholder="למשל: הדלת לא נעולה">
+      </div>
+      <div class="edit-actions">
+        <button class="btn-secondary" onclick="cancelEdit()">ביטול</button>
+        <button class="btn-primary"   onclick="saveNewChecklist()">הוסף</button>
+      </div>
+    `;
+    list.appendChild(form);
+    document.getElementById('new-cl-pos').focus();
+  }
+
+  function saveNewChecklist() {
+    const pos = document.getElementById('new-cl-pos').value.trim();
+    const neg = document.getElementById('new-cl-neg').value.trim();
+    if (!pos || !neg) return;
+    draftChecklist.push({ pos, neg });
+    cancelEdit();
+    renderAdminChecklist();
+  }
+
+  /* ── Render admin ingredients ── */
+  function renderAdminIngredients() {
+    const list = document.getElementById('admin-ingredients-list');
+    list.innerHTML = '';
+    draftIngredients.forEach((name, idx) => {
+      const row = document.createElement('div');
+      row.className = 'admin-item';
+      row.dataset.idx = idx;
+      row.innerHTML = `
+        <div class="admin-item-text">${name}</div>
+        <button class="icon-btn" onclick="startEditIngredient(${idx})" title="עריכה">✏️</button>
+        <button class="icon-btn" onclick="deleteIngredient(${idx})"    title="מחיקה">🗑️</button>
+      `;
+      list.appendChild(row);
+    });
+  }
+
+  function startEditIngredient(idx) {
+    document.querySelectorAll('.edit-form').forEach(f => f.remove());
+
+    const list = document.getElementById('admin-ingredients-list');
+    const rows = list.querySelectorAll('.admin-item');
+    const targetRow = Array.from(rows).find(r => parseInt(r.dataset.idx) === idx);
+    if (!targetRow) return;
+
+    const form = document.createElement('div');
+    form.className = 'edit-form';
+    form.innerHTML = `
+      <div>
+        <div class="edit-form-label">שם מצרך</div>
+        <input class="edit-input" id="edit-ing-${idx}" value="${escHtml(draftIngredients[idx])}">
+      </div>
+      <div class="edit-actions">
+        <button class="btn-secondary" onclick="cancelEdit()">ביטול</button>
+        <button class="btn-primary"   onclick="saveEditIngredient(${idx})">שמור</button>
+      </div>
+    `;
+    targetRow.insertAdjacentElement('afterend', form);
+  }
+
+  function saveEditIngredient(idx) {
+    const val = document.getElementById(`edit-ing-${idx}`).value.trim();
+    if (!val) return;
+    draftIngredients[idx] = val;
+    cancelEdit();
+    renderAdminIngredients();
+  }
+
+  function deleteIngredient(idx) {
+    draftIngredients.splice(idx, 1);
+    renderAdminIngredients();
+  }
+
+  function startAddIngredient() {
+    document.querySelectorAll('.edit-form').forEach(f => f.remove());
+
+    const list = document.getElementById('admin-ingredients-list');
+    const form = document.createElement('div');
+    form.className = 'edit-form';
+    form.innerHTML = `
+      <div>
+        <div class="edit-form-label">שם מצרך</div>
+        <input class="edit-input" id="new-ing" placeholder="למשל: חמאה">
+      </div>
+      <div class="edit-actions">
+        <button class="btn-secondary" onclick="cancelEdit()">ביטול</button>
+        <button class="btn-primary"   onclick="saveNewIngredient()">הוסף</button>
+      </div>
+    `;
+    list.appendChild(form);
+    document.getElementById('new-ing').focus();
+  }
+
+  function saveNewIngredient() {
+    const val = document.getElementById('new-ing').value.trim();
+    if (!val) return;
+    draftIngredients.push(val);
+    cancelEdit();
+    renderAdminIngredients();
+  }
+
+  function cancelEdit() {
+    document.querySelectorAll('.edit-form').forEach(f => f.remove());
+  }
+
+  /* ── Change PIN ── */
+  function changePin() {
+    const newPin     = document.getElementById('new-pin-input').value.trim();
+    const confirmPin = document.getElementById('confirm-pin-input').value.trim();
+    const errEl      = document.getElementById('pin-change-error');
+
+    if (!newPin || newPin.length < 4) {
+      errEl.textContent = 'קוד חייב להיות לפחות 4 ספרות';
+      errEl.style.display = 'block';
+      return;
+    }
+    if (newPin !== confirmPin) {
+      errEl.textContent = 'הקודים אינם תואמים';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    localStorage.setItem('amali_admin_pin', newPin);
+    errEl.style.display = 'none';
+    document.getElementById('new-pin-input').value     = '';
+    document.getElementById('confirm-pin-input').value = '';
+    alert('הקוד שונה בהצלחה ✅');
+  }
+
+  /* ── Save all changes ── */
+  function saveAdminChanges() {
+    config.checklist   = draftChecklist.map(i => ({ ...i }));
+    config.ingredients = [...draftIngredients];
+    localStorage.setItem('amali_checklist',   JSON.stringify(config.checklist));
+    localStorage.setItem('amali_ingredients', JSON.stringify(config.ingredients));
+    renderChecklist();
+    renderIngredients();
+    closeAdminPanel();
+  }
+
+  /* ── Utility ── */
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ═══════════════════════════════════════════
+     INIT
+  ═══════════════════════════════════════════ */
+  renderChecklist();
+  renderIngredients();
 </script>
 
 </body>

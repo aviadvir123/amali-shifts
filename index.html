@@ -733,7 +733,36 @@
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
 <script>
+  /* ═══════════════════════════════════════════
+     FIREBASE SYNC
+     Fill in your Firebase project config below.
+     Get it from: Firebase Console → Project Settings → Your apps → Web
+  ═══════════════════════════════════════════ */
+  const FIREBASE_CONFIG = {
+    apiKey:            "REPLACE_WITH_YOUR_API_KEY",
+    authDomain:        "REPLACE_WITH_YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL:       "https://REPLACE_WITH_YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+    projectId:         "REPLACE_WITH_YOUR_PROJECT_ID",
+    storageBucket:     "REPLACE_WITH_YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "REPLACE_WITH_YOUR_SENDER_ID",
+    appId:             "REPLACE_WITH_YOUR_APP_ID"
+  };
+
+  let firebaseReady = false;
+  let configRef = null;
+
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    configRef = firebase.database().ref('amali/config');
+    firebaseReady = true;
+  } catch(e) {
+    // Firebase not configured — runs on localStorage only
+  }
+
   /* ═══════════════════════════════════════════
      DEFAULTS
   ═══════════════════════════════════════════ */
@@ -778,6 +807,23 @@
   }
 
   let config = loadConfig();
+
+  // Real-time listener: re-render whenever any device saves config to Firebase
+  if (firebaseReady && configRef) {
+    configRef.on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+      config.checklist      = data.checklist      || DEFAULT_CHECKLIST;
+      config.ingredients    = data.ingredients    || DEFAULT_INGREDIENTS;
+      config.customSections = data.customSections || [];
+      localStorage.setItem('amali_checklist',       JSON.stringify(config.checklist));
+      localStorage.setItem('amali_ingredients',     JSON.stringify(config.ingredients));
+      localStorage.setItem('amali_custom_sections', JSON.stringify(config.customSections));
+      renderChecklist();
+      renderIngredients();
+      renderCustomSections();
+    });
+  }
 
   /* ═══════════════════════════════════════════
      FORM STATE
@@ -1026,7 +1072,11 @@
       return;
     }
 
-    window.location.href = `https://wa.me/?text=${encodeURIComponent(buildMessage())}`;
+    const encodedMsg = encodeURIComponent(buildMessage());
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    window.location.href = isMobile
+      ? `whatsapp://send?text=${encodedMsg}`
+      : `https://wa.me/?text=${encodedMsg}`;
   }
 
   /* ═══════════════════════════════════════════
@@ -1328,6 +1378,13 @@
     localStorage.setItem('amali_checklist',       JSON.stringify(config.checklist));
     localStorage.setItem('amali_ingredients',     JSON.stringify(config.ingredients));
     localStorage.setItem('amali_custom_sections', JSON.stringify(config.customSections));
+    if (firebaseReady && configRef) {
+      configRef.set({
+        checklist:      config.checklist,
+        ingredients:    config.ingredients,
+        customSections: config.customSections,
+      });
+    }
     renderChecklist();
     renderIngredients();
     renderCustomSections();

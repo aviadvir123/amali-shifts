@@ -767,7 +767,6 @@
      DEFAULTS
   ═══════════════════════════════════════════ */
   const DEFAULT_CHECKLIST = [
-    { pos: 'המלאי בארון מלא',                                         neg: 'המלאי בארון חסר' },
     { pos: 'שקיות קפה ארוזות',                                        neg: 'אין שקיות קפה ארוזות' },
     { pos: 'יש מספיק קפה במטחנה/דליים',                               neg: 'אין מספיק קפה במטחנה/דליים' },
     { pos: 'יש חלב במקרר',                                            neg: 'אין חלב במקרר' },
@@ -777,6 +776,7 @@
     { pos: 'עציצים שמחים',                                            neg: 'עציצים עומדים למות' },
     { pos: 'שקיות זבל בכל הפחים כולל שירותים',                        neg: 'לא שמנו שקיות זבל בפחים' },
     { pos: 'מצרכים לשוקו בקופסאות',                                   neg: 'אין מצרכים לשוקו בקופסאות' },
+    { pos: 'המפתחות למחסן במקום שלהן',                                 neg: 'המפתחות למחסן לא במקום שלהן' },
   ];
 
   const DEFAULT_INGREDIENTS = [
@@ -785,20 +785,52 @@
     'זיתים', 'ריבה', 'בצל ירוק', 'ביצים', 'סלמון'
   ];
 
+  const DEFAULT_CUSTOM_SECTIONS = [
+    {
+      id: 'sec_malai_baron',
+      title: 'מלאי בארון',
+      type: 'checklist',
+      items: [
+        { pos: 'צץ רץ',                                          neg: 'אין צץ רץ' },
+        { pos: 'יש כוסות חמות וקרות בכל הגדלים',                neg: 'אין כוסות חמות וקרות בכל הגדלים' },
+        { pos: 'יש מכסים לכוסות מכל הסוגים',                    neg: 'אין מכסים לכוסות מכל הסוגים' },
+        { pos: 'יש קופסאות טייקאווי ומכסים',                    neg: 'אין קופסאות טייקאווי ומכסים' },
+        { pos: 'יש נייר לקופה',                                  neg: 'אין נייר לקופה' },
+        { pos: 'יש מפיות נייר',                                  neg: 'אין מפיות נייר' },
+        { pos: 'יש קשים',                                        neg: 'אין קשים' },
+        { pos: 'יש בוחשנים',                                     neg: 'אין בוחשנים' },
+        { pos: 'יש סוכר',                                        neg: 'אין סוכר' },
+        { pos: 'יש כלי נשיאה לכוסות',                           neg: 'אין כלי נשיאה לכוסות' },
+        { pos: 'יש שקיות למאפים ושקיות נשיאה',                  neg: 'אין שקיות למאפים ושקיות נשיאה' },
+        { pos: 'יש ניירות למגשים',                               neg: 'אין ניירות למגשים' },
+        { pos: 'יש נייר טואלט',                                  neg: 'אין נייר טואלט' },
+      ]
+    }
+  ];
+
   const DEFAULT_PIN = '1234';
+
+  const CONFIG_VERSION = 2;
 
   /* ═══════════════════════════════════════════
      LOAD CONFIG
   ═══════════════════════════════════════════ */
   function loadConfig() {
     try {
+      const storedVersion = parseInt(localStorage.getItem('amali_config_version') || '1');
+      if (storedVersion < CONFIG_VERSION) {
+        localStorage.removeItem('amali_checklist');
+        localStorage.removeItem('amali_ingredients');
+        localStorage.removeItem('amali_custom_sections');
+        localStorage.setItem('amali_config_version', String(CONFIG_VERSION));
+      }
       return {
         checklist:      JSON.parse(localStorage.getItem('amali_checklist'))       || DEFAULT_CHECKLIST,
         ingredients:    JSON.parse(localStorage.getItem('amali_ingredients'))     || DEFAULT_INGREDIENTS,
-        customSections: JSON.parse(localStorage.getItem('amali_custom_sections')) || [],
+        customSections: JSON.parse(localStorage.getItem('amali_custom_sections')) || DEFAULT_CUSTOM_SECTIONS,
       };
     } catch(e) {
-      return { checklist: DEFAULT_CHECKLIST, ingredients: DEFAULT_INGREDIENTS, customSections: [] };
+      return { checklist: DEFAULT_CHECKLIST, ingredients: DEFAULT_INGREDIENTS, customSections: DEFAULT_CUSTOM_SECTIONS };
     }
   }
 

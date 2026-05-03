@@ -1019,7 +1019,7 @@
 
     if (!valid) return;
 
-    window.open(`https://wa.me/?text=${encodeURIComponent(buildMessage())}`, '_blank');
+    window.location.href = `https://wa.me/?text=${encodeURIComponent(buildMessage())}`;
   }
 
   /* ═══════════════════════════════════════════

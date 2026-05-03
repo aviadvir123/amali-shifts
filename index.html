@@ -993,12 +993,14 @@
 
   function sendWhatsApp() {
     let valid = true;
+    let firstErrorEl = null;
 
     const pastriesEl  = document.getElementById('pastries-left');
     const pastriesErr = document.getElementById('pastries-error');
     if (pastriesLeft && pastriesEl.value.trim().length === 0) {
       pastriesEl.classList.add('field-error');
       pastriesErr.classList.add('visible');
+      if (!firstErrorEl) firstErrorEl = pastriesEl;
       valid = false;
     } else {
       pastriesEl.classList.remove('field-error');
@@ -1011,13 +1013,18 @@
     if (hasUnchecked && notesEl.value.trim().length === 0) {
       notesEl.classList.add('field-error');
       notesErr.classList.add('visible');
+      if (!firstErrorEl) firstErrorEl = notesEl;
       valid = false;
     } else {
       notesEl.classList.remove('field-error');
       notesErr.classList.remove('visible');
     }
 
-    if (!valid) return;
+    if (!valid) {
+      firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      firstErrorEl.focus();
+      return;
+    }
 
     window.location.href = `https://wa.me/?text=${encodeURIComponent(buildMessage())}`;
   }

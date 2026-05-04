@@ -233,6 +233,47 @@
 
     .seg-btn:active { opacity: 0.8; }
 
+    .pastry-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 8px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--blue-border);
+    }
+    .pastry-row:last-child { border-bottom: none; }
+    .pastry-name { flex: 1 0 auto; font-size: 0.88rem; font-weight: 700; color: var(--blue); }
+    .pastry-btns { display: flex; gap: 5px; flex-shrink: 0; }
+    .pastry-btn {
+      font-family: var(--font);
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1.5px solid var(--blue-border);
+      background: var(--white);
+      cursor: pointer;
+      color: var(--blue);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .pastry-btn.done { background: var(--blue); color: white; border-color: var(--blue); }
+    .pastry-btn.left { background: #e67e22; color: white; border-color: #e67e22; }
+    .pastry-note {
+      flex: 1 0 100%;
+      font-family: var(--font);
+      font-size: 0.8rem;
+      font-weight: 400;
+      padding: 5px 10px;
+      border: 1.5px solid var(--blue-border);
+      border-radius: var(--radius-sm);
+      direction: rtl;
+      text-align: right;
+      color: var(--blue);
+      outline: none;
+    }
+    .pastry-note:focus { border-color: var(--blue); }
+
     .send-btn {
       width: 100%;
       height: 54px;
@@ -294,14 +335,8 @@
 
   <!-- 4. Pastries (under מוצרי קירור) -->
   <div class="card">
-    <div class="seg-toggle">
-      <button class="seg-btn active" id="seg-none" onclick="setPastries(false)">נגמרו המאפים</button>
-      <button class="seg-btn"        id="seg-left" onclick="setPastries(true)">נשארו מאפים</button>
-    </div>
-    <div class="field-group" id="pastries-field" style="display:none; margin-top: 14px; padding-top: 14px; border-top: 1.5px solid var(--blue-border);">
-      <textarea id="pastries-left" placeholder="מה נשאר ואיך אוחסן..."></textarea>
-      <span class="field-error-msg" id="pastries-error">תספרו לנו מה נשאר</span>
-    </div>
+    <div class="card-title">מאפים</div>
+    <div id="pastries-list"></div>
   </div>
 
   <!-- 5. Team message -->
@@ -321,15 +356,17 @@
      DEFAULTS
   ═══════════════════════════════════════════ */
   const DEFAULT_CHECKLIST = [
-    { pos: 'שקיות קפה ארוזות',             neg: 'אין שקיות קפה ארוזות' },
-    { pos: 'יש מספיק קפה במטחנה/דליים',   neg: 'אין מספיק קפה במטחנה/דליים' },
-    { pos: 'מצרכים לשוקו בקופסאות',       neg: 'אין מצרכים לשוקו בקופסאות' },
+    { pos: 'שקיות קפה ארוזות',                       neg: 'אין שקיות קפה ארוזות' },
+    { pos: 'יש מספיק קפה במטחנה/דליים',             neg: 'אין מספיק קפה במטחנה/דליים' },
+    { pos: 'מצרכים לשוקו בקופסאות',                 neg: 'אין מצרכים לשוקו בקופסאות' },
+    { pos: 'ניקיתי מטחנה (ראשון, שלישי, חמישי)',    neg: 'לא ניקיתי מטחנה' },
   ];
 
   const DEFAULT_INGREDIENTS = [
-    'גאודה', 'ברי', 'גבינת שמנת', 'מלפפון',
-    'עגבניה', 'בצל סגול', 'רוקט', 'ארטישוק',
-    'זיתים', 'ריבה', 'בצל ירוק', 'ביצים', 'סלמון'
+    'גאודה', 'ברי', 'גבינת שמנת',
+    'סלמון', 'ביצים',
+    'מלפפון', 'עגבניה', 'בצל סגול', 'בצל ירוק', 'רוקט', 'ארטישוק', 'זיתים',
+    'ריבה'
   ];
 
   const DEFAULT_CUSTOM_SECTIONS = [
@@ -339,8 +376,10 @@
       type: 'checklist',
       placement: 'pre',
       items: [
-        { pos: 'הכל נקי ויבש (רצפה, כיור כולל מתחת למייבש כלים)', neg: 'הכל מלוכלך ורטוב' },
-        { pos: 'יש מגבות נקיות למחר',                               neg: 'אין מגבות נקיות למחר' },
+        { pos: 'רצפה נקייה ויבשה',                    neg: 'רצפה לא נקייה/יבשה' },
+        { pos: 'כיור נקי ויבש',                        neg: 'כיור לא נקי/יבש' },
+        { pos: 'מתחת למייבש כלים נקי ויבש',           neg: 'מתחת למייבש כלים לא נקי/יבש' },
+        { pos: 'יש מגבות נקיות למחר',                  neg: 'אין מגבות נקיות למחר' },
         { pos: 'עציצים שמחים',                                      neg: 'עציצים עומדים למות' },
         { pos: 'שקיות זבל בכל הפחים כולל שירותים',                  neg: 'לא שמנו שקיות זבל בפחים' },
       ]
@@ -351,8 +390,9 @@
       type: 'checklist',
       placement: 'pre',
       items: [
-        { pos: 'המפתחות למחסן במקום שלהן', neg: 'המפתחות למחסן לא במקום שלהן' },
+        { pos: 'המפתחות למחסן במקום שלהם', neg: 'המפתחות למחסן לא במקום שלהם' },
         { pos: 'סגרנו קופה',               neg: 'לא סגרנו קופה' },
+        { pos: 'לאייפד יש בטריה/מוטען',   neg: 'לאייפד אין בטריה/לא מוטען' },
       ]
     },
     {
@@ -373,6 +413,7 @@
         { pos: 'יש שקיות למאפים ושקיות נשיאה',                  neg: 'אין שקיות למאפים ושקיות נשיאה' },
         { pos: 'יש ניירות למגשים',                               neg: 'אין ניירות למגשים' },
         { pos: 'יש נייר טואלט',                                  neg: 'אין נייר טואלט' },
+        { pos: 'יש שקיות זבל',                                   neg: 'אין שקיות זבל' },
       ]
     },
     {
@@ -388,7 +429,7 @@
     }
   ];
 
-  const CONFIG_VERSION = 5;
+  const CONFIG_VERSION = 6;
 
   /* ═══════════════════════════════════════════
      LOAD CONFIG
@@ -417,10 +458,12 @@
   /* ═══════════════════════════════════════════
      FORM STATE
   ═══════════════════════════════════════════ */
-  let ingState     = {};
-  let checkState   = {};
-  let customState  = {};
-  let pastriesLeft = false;
+  const PASTRY_ITEMS = ['בראוניז', 'שוקולדציפס', 'שורטברד', 'טארט', 'בחושה', 'באסקית', 'נוספים'];
+
+  let ingState      = {};
+  let checkState    = {};
+  let customState   = {};
+  let pastriesState = {};
 
   /* ═══════════════════════════════════════════
      RENDER
@@ -537,21 +580,39 @@
   /* ═══════════════════════════════════════════
      PASTRIES
   ═══════════════════════════════════════════ */
-  function setPastries(hasLeft) {
-    pastriesLeft = hasLeft;
-    document.getElementById('seg-none').classList.toggle('active', !hasLeft);
-    document.getElementById('seg-left').classList.toggle('active',  hasLeft);
-    document.getElementById('pastries-field').style.display = hasLeft ? 'flex' : 'none';
-    if (!hasLeft) {
-      document.getElementById('pastries-left').classList.remove('field-error');
-      document.getElementById('pastries-error').classList.remove('visible');
-    }
+  function renderPastries() {
+    const container = document.getElementById('pastries-list');
+    container.innerHTML = '';
+    pastriesState = {};
+    PASTRY_ITEMS.forEach(name => {
+      pastriesState[name] = { done: true, note: '' };
+      const row = document.createElement('div');
+      row.className = 'pastry-row';
+      row.innerHTML = `
+        <span class="pastry-name">${name}</span>
+        <div class="pastry-btns">
+          <button class="pastry-btn done" data-s="done">נגמר ✓</button>
+          <button class="pastry-btn"      data-s="left">יש עוד</button>
+        </div>
+        <input class="pastry-note" type="text" placeholder="כמה ואיפה מאוחסן..." style="display:none">
+      `;
+      const [btnDone, btnLeft] = row.querySelectorAll('.pastry-btn');
+      const noteEl = row.querySelector('.pastry-note');
+      btnDone.addEventListener('click', () => {
+        pastriesState[name].done = true;
+        btnDone.classList.add('done'); btnLeft.classList.remove('left');
+        noteEl.style.display = 'none'; noteEl.value = ''; pastriesState[name].note = '';
+      });
+      btnLeft.addEventListener('click', () => {
+        pastriesState[name].done = false;
+        btnLeft.classList.add('left'); btnDone.classList.remove('done');
+        noteEl.style.display = 'block';
+      });
+      noteEl.addEventListener('input', () => { pastriesState[name].note = noteEl.value; });
+      container.appendChild(row);
+    });
   }
 
-  document.getElementById('pastries-left').addEventListener('input', () => {
-    document.getElementById('pastries-left').classList.remove('field-error');
-    document.getElementById('pastries-error').classList.remove('visible');
-  });
   document.getElementById('checklist-notes').addEventListener('input', () => {
     document.getElementById('checklist-notes').classList.remove('field-error');
     document.getElementById('checklist-notes-error').classList.remove('visible');
@@ -572,7 +633,7 @@
     let msg = `${R}*סיכום סגירה — ${dateStr}*\n\n`;
 
     const notDone = config.checklist.filter(item => !checkState[item.pos]);
-    msg += `${R}*צ׳קליסט סגירה:*\n`;
+    msg += `${R}*סגירת קפה:*\n`;
     if (notDone.length === 0) {
       msg += `${R}הכל בוצע\n`;
     } else {
@@ -582,12 +643,15 @@
     const checkNotes = document.getElementById('checklist-notes').value.trim();
     if (checkNotes) msg += `${R}הערות: ${checkNotes}\n`;
 
-    if (pastriesLeft) {
-      const pastries = document.getElementById('pastries-left').value.trim();
-      msg += `\n${R}*מאפים שנשארו למחר:*\n${R}${pastries}\n`;
-    } else {
-      msg += `\n${R}*מאפים שנשארו למחר:*\n${R}לא נשארו מאפים\n`;
-    }
+    msg += `\n${R}*מאפים:*\n`;
+    PASTRY_ITEMS.forEach(name => {
+      const s = pastriesState[name];
+      if (s.done) {
+        msg += line(`- ${name}: נגמר`) + '\n';
+      } else {
+        msg += line(`- ${name}: יש עוד — ${s.note || 'לא צוין'}`) + '\n';
+      }
+    });
 
     const missing = config.ingredients.filter(n => !ingState[n]);
     msg += `\n${R}*כריכים:*\n`;
@@ -627,18 +691,6 @@
     let valid = true;
     let firstErrorEl = null;
 
-    const pastriesEl  = document.getElementById('pastries-left');
-    const pastriesErr = document.getElementById('pastries-error');
-    if (pastriesLeft && pastriesEl.value.trim().length === 0) {
-      pastriesEl.classList.add('field-error');
-      pastriesErr.classList.add('visible');
-      if (!firstErrorEl) firstErrorEl = pastriesEl;
-      valid = false;
-    } else {
-      pastriesEl.classList.remove('field-error');
-      pastriesErr.classList.remove('visible');
-    }
-
     const hasUnchecked = config.checklist.some(item => !checkState[item.pos]);
     const notesEl  = document.getElementById('checklist-notes');
     const notesErr = document.getElementById('checklist-notes-error');
@@ -671,6 +723,7 @@
   renderChecklist();
   renderIngredients();
   renderCustomSections();
+  renderPastries();
 </script>
 
 </body>

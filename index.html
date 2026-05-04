@@ -266,9 +266,9 @@
 
 <div class="container">
 
-  <!-- 1. Closing checklist -->
+  <!-- 1. סגירת קפה -->
   <div class="card">
-    <div class="card-title">צ׳קליסט סגירה</div>
+    <div class="card-title">סגירת קפה</div>
     <div class="checklist" id="checklist"></div>
     <div class="field-group" style="margin-top: 14px; padding-top: 14px; border-top: 1.5px solid var(--blue-border);">
       <label class="field-label">הערות</label>
@@ -277,7 +277,22 @@
     </div>
   </div>
 
-  <!-- 2. Pastries -->
+  <!-- 2. Pre-sections: ניקיון, סגירת קופה -->
+  <div id="pre-sections-container"></div>
+
+  <!-- 3. Sandwich ingredients -->
+  <div class="card">
+    <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
+      <span>מצרכים לכריכים</span>
+      <button id="check-all-ing" onclick="toggleAllIngredients()" style="font-family:var(--font);font-size:0.78rem;font-weight:700;color:var(--blue);background:none;border:1.5px solid var(--blue-border);border-radius:var(--radius-sm);padding:4px 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;">סמן הכל ✅</button>
+    </div>
+    <div class="toggle-grid" id="ingredients-grid"></div>
+  </div>
+
+  <!-- Custom sections: מלאי בארון, מוצרי קירור -->
+  <div id="custom-sections-container"></div>
+
+  <!-- 4. Pastries (under מוצרי קירור) -->
   <div class="card">
     <div class="seg-toggle">
       <button class="seg-btn active" id="seg-none" onclick="setPastries(false)">נגמרו המאפים</button>
@@ -289,19 +304,7 @@
     </div>
   </div>
 
-  <!-- 3. Sandwich ingredients -->
-  <div class="card">
-    <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
-      <span>מצרכים לכריכים</span>
-      <button id="check-all-ing" onclick="toggleAllIngredients()" style="font-family:var(--font);font-size:0.78rem;font-weight:700;color:var(--blue);background:none;border:1.5px solid var(--blue-border);border-radius:var(--radius-sm);padding:4px 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;">סמן הכל ✅</button>
-    </div>
-    <div class="toggle-grid" id="ingredients-grid"></div>
-  </div>
-
-  <!-- Custom sections -->
-  <div id="custom-sections-container"></div>
-
-  <!-- 4. Team message -->
+  <!-- 5. Team message -->
   <div class="card">
     <div class="field-group">
       <label class="field-label">מסר לצוות</label>
@@ -318,15 +321,9 @@
      DEFAULTS
   ═══════════════════════════════════════════ */
   const DEFAULT_CHECKLIST = [
-    { pos: 'שקיות קפה ארוזות',                                        neg: 'אין שקיות קפה ארוזות' },
-    { pos: 'יש מספיק קפה במטחנה/דליים',                               neg: 'אין מספיק קפה במטחנה/דליים' },
-    { pos: 'מאפים שנותרו מאוחסנים כראוי',                             neg: 'מאפים שנותרו לא מאוחסנים כראוי' },
-    { pos: 'הכל נקי ויבש (רצפה, כיור כולל מתחת למייבש כלים)',        neg: 'הכל מלוכלך ורטוב' },
-    { pos: 'יש מגבות נקיות למחר',                                     neg: 'אין מגבות נקיות למחר' },
-    { pos: 'עציצים שמחים',                                            neg: 'עציצים עומדים למות' },
-    { pos: 'שקיות זבל בכל הפחים כולל שירותים',                        neg: 'לא שמנו שקיות זבל בפחים' },
-    { pos: 'מצרכים לשוקו בקופסאות',                                   neg: 'אין מצרכים לשוקו בקופסאות' },
-    { pos: 'המפתחות למחסן במקום שלהן',                                 neg: 'המפתחות למחסן לא במקום שלהן' },
+    { pos: 'שקיות קפה ארוזות',             neg: 'אין שקיות קפה ארוזות' },
+    { pos: 'יש מספיק קפה במטחנה/דליים',   neg: 'אין מספיק קפה במטחנה/דליים' },
+    { pos: 'מצרכים לשוקו בקופסאות',       neg: 'אין מצרכים לשוקו בקופסאות' },
   ];
 
   const DEFAULT_INGREDIENTS = [
@@ -336,6 +333,28 @@
   ];
 
   const DEFAULT_CUSTOM_SECTIONS = [
+    {
+      id: 'sec_nikuyon',
+      title: 'ניקיון',
+      type: 'checklist',
+      placement: 'pre',
+      items: [
+        { pos: 'הכל נקי ויבש (רצפה, כיור כולל מתחת למייבש כלים)', neg: 'הכל מלוכלך ורטוב' },
+        { pos: 'יש מגבות נקיות למחר',                               neg: 'אין מגבות נקיות למחר' },
+        { pos: 'עציצים שמחים',                                      neg: 'עציצים עומדים למות' },
+        { pos: 'שקיות זבל בכל הפחים כולל שירותים',                  neg: 'לא שמנו שקיות זבל בפחים' },
+      ]
+    },
+    {
+      id: 'sec_sgira_kupa',
+      title: 'סגירת קופה',
+      type: 'checklist',
+      placement: 'pre',
+      items: [
+        { pos: 'המפתחות למחסן במקום שלהן', neg: 'המפתחות למחסן לא במקום שלהן' },
+        { pos: 'סגרנו קופה',               neg: 'לא סגרנו קופה' },
+      ]
+    },
     {
       id: 'sec_malai_baron',
       title: 'מלאי בארון',
@@ -361,14 +380,15 @@
       title: 'מוצרי קירור',
       type: 'checklist',
       items: [
-        { pos: 'יש קולד ברו',      neg: 'אין קולד ברו' },
+        { pos: 'מאפים שנותרו מאוחסנים כראוי', neg: 'מאפים שנותרו לא מאוחסנים כראוי' },
+        { pos: 'יש קולד ברו',                 neg: 'אין קולד ברו' },
         { pos: 'יש שמנת חמוצה',    neg: 'אין שמנת חמוצה' },
         { pos: 'יש סודה',          neg: 'אין סודה' },
       ]
     }
   ];
 
-  const CONFIG_VERSION = 4;
+  const CONFIG_VERSION = 5;
 
   /* ═══════════════════════════════════════════
      LOAD CONFIG
@@ -444,14 +464,17 @@
   }
 
   function renderCustomSections() {
-    const container = document.getElementById('custom-sections-container');
-    container.innerHTML = '';
+    const preContainer  = document.getElementById('pre-sections-container');
+    const mainContainer = document.getElementById('custom-sections-container');
+    preContainer.innerHTML  = '';
+    mainContainer.innerHTML = '';
     customState = {};
 
     config.customSections.forEach(section => {
       customState[section.id] = {};
       const card = document.createElement('div');
       card.className = 'card';
+      const container = section.placement === 'pre' ? preContainer : mainContainer;
 
       if (section.type === 'checklist') {
         card.innerHTML = `<div class="card-title">${section.title}</div><div class="checklist" id="cs-list-${section.id}"></div>`;

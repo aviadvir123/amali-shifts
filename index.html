@@ -273,6 +273,7 @@
       outline: none;
     }
     .pastry-note:focus { border-color: var(--blue); }
+    .pastry-note.field-error { border-color: #e53e3e !important; }
 
     .send-btn {
       width: 100%;
@@ -425,7 +426,7 @@
     }
   ];
 
-  const CONFIG_VERSION = 7;
+  const CONFIG_VERSION = 8;
 
   /* ═══════════════════════════════════════════
      LOAD CONFIG
@@ -487,32 +488,38 @@
     container.innerHTML = '';
     ingState = {};
     config.ingredients.forEach(name => {
-      ingState[name] = { has: true, washed: false };
+      ingState[name] = { done: true, note: '', washed: false };
       const row = document.createElement('div');
       row.className = 'pastry-row';
       const isRocket = name === 'רוקט';
       row.innerHTML = `
         <span class="pastry-name">${name}</span>
         <div class="pastry-btns">
-          <button class="pastry-btn done" data-s="has">יש ✓</button>
-          <button class="pastry-btn"      data-s="missing">חסר</button>
+          <button class="pastry-btn done" data-s="done">נגמר ✓</button>
+          <button class="pastry-btn"      data-s="left">יש עוד</button>
         </div>
         ${isRocket ? `<div class="pastry-btns rocket-wash" style="display:none">
           <button class="pastry-btn" data-s="washed">שטוף ✓</button>
           <button class="pastry-btn left" data-s="unwashed">לא שטוף</button>
         </div>` : ''}
+        <input class="pastry-note" type="text" placeholder="כמה ואיפה מאוחסן..." style="display:none">
       `;
-      const [btnHas, btnMissing] = row.querySelectorAll('[data-s="has"], [data-s="missing"]');
-      btnHas.addEventListener('click', () => {
-        ingState[name].has = true;
-        btnHas.classList.add('done'); btnMissing.classList.remove('left');
-        if (isRocket) row.querySelector('.rocket-wash').style.display = 'flex';
-      });
-      btnMissing.addEventListener('click', () => {
-        ingState[name].has = false;
-        btnMissing.classList.add('left'); btnHas.classList.remove('done');
+      const btnDone   = row.querySelector('[data-s="done"]');
+      const btnLeft   = row.querySelector('[data-s="left"]');
+      const noteEl    = row.querySelector('.pastry-note');
+      btnDone.addEventListener('click', () => {
+        ingState[name].done = true; ingState[name].note = '';
+        btnDone.classList.add('done'); btnLeft.classList.remove('left');
+        noteEl.style.display = 'none'; noteEl.value = ''; noteEl.classList.remove('field-error');
         if (isRocket) { row.querySelector('.rocket-wash').style.display = 'none'; ingState[name].washed = false; }
       });
+      btnLeft.addEventListener('click', () => {
+        ingState[name].done = false;
+        btnLeft.classList.add('left'); btnDone.classList.remove('done');
+        noteEl.style.display = 'block';
+        if (isRocket) row.querySelector('.rocket-wash').style.display = 'flex';
+      });
+      noteEl.addEventListener('input', () => { ingState[name].note = noteEl.value; noteEl.classList.remove('field-error'); });
       if (isRocket) {
         const btnWashed   = row.querySelector('[data-s="washed"]');
         const btnUnwashed = row.querySelector('[data-s="unwashed"]');
@@ -620,7 +627,7 @@
         btnLeft.classList.add('left'); btnDone.classList.remove('done');
         noteEl.style.display = 'block';
       });
-      noteEl.addEventListener('input', () => { pastriesState[name].note = noteEl.value; });
+      noteEl.addEventListener('input', () => { pastriesState[name].note = noteEl.value; noteEl.classList.remove('field-error'); });
       container.appendChild(row);
     });
   }
@@ -665,16 +672,17 @@
       }
     });
 
-    const missingIng = config.ingredients.filter(n => !ingState[n]?.has);
     msg += `\n${R}*כריכים:*\n`;
-    if (missingIng.length === 0) {
-      msg += `${R}יש את כל המצרכים\n`;
-    } else {
-      msg += `${R}חסר: ${missingIng.join(', ')}\n`;
-    }
-    if (ingState['רוקט']?.has && !ingState['רוקט']?.washed) {
-      msg += `${R}⚠️ רוקט — לא שטוף\n`;
-    }
+    config.ingredients.forEach(name => {
+      const s = ingState[name];
+      if (s.done) {
+        msg += line(`- ${name}: נגמר`) + '\n';
+      } else {
+        let txt = `- ${name}: יש עוד — ${s.note || 'לא צוין'}`;
+        if (name === 'רוקט') txt += ` (${s.washed ? 'שטוף' : '⚠️ לא שטוף'})`;
+        msg += line(txt) + '\n';
+      }
+    });
 
     config.customSections.forEach(section => {
       const state = customState[section.id] || {};
@@ -705,6 +713,16 @@
   function sendWhatsApp() {
     let valid = true;
     let firstErrorEl = null;
+
+    document.querySelectorAll('#pastries-list .pastry-note, #ingredients-list .pastry-note').forEach(input => {
+      if (input.style.display !== 'none' && !input.value.trim()) {
+        input.classList.add('field-error');
+        if (!firstErrorEl) firstErrorEl = input;
+        valid = false;
+      } else {
+        input.classList.remove('field-error');
+      }
+    });
 
     const hasUnchecked = config.checklist.some(item => !checkState[item.pos]);
     const notesEl  = document.getElementById('checklist-notes');

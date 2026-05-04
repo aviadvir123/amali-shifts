@@ -323,11 +323,8 @@
 
   <!-- 3. Sandwich ingredients -->
   <div class="card">
-    <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
-      <span>מצרכים לכריכים</span>
-      <button id="check-all-ing" onclick="toggleAllIngredients()" style="font-family:var(--font);font-size:0.78rem;font-weight:700;color:var(--blue);background:none;border:1.5px solid var(--blue-border);border-radius:var(--radius-sm);padding:4px 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;">סמן הכל ✅</button>
-    </div>
-    <div class="toggle-grid" id="ingredients-grid"></div>
+    <div class="card-title">מצרכים לכריכים</div>
+    <div id="ingredients-list"></div>
   </div>
 
   <!-- Custom sections: מלאי בארון, מוצרי קירור -->
@@ -421,15 +418,14 @@
       title: 'מוצרי קירור',
       type: 'checklist',
       items: [
-        { pos: 'מאפים שנותרו מאוחסנים כראוי', neg: 'מאפים שנותרו לא מאוחסנים כראוי' },
-        { pos: 'יש קולד ברו',                 neg: 'אין קולד ברו' },
+        { pos: 'יש קולד ברו',      neg: 'אין קולד ברו' },
         { pos: 'יש שמנת חמוצה',    neg: 'אין שמנת חמוצה' },
         { pos: 'יש סודה',          neg: 'אין סודה' },
       ]
     }
   ];
 
-  const CONFIG_VERSION = 6;
+  const CONFIG_VERSION = 7;
 
   /* ═══════════════════════════════════════════
      LOAD CONFIG
@@ -487,22 +483,49 @@
   }
 
   function renderIngredients() {
-    const grid = document.getElementById('ingredients-grid');
-    grid.innerHTML = '';
+    const container = document.getElementById('ingredients-list');
+    container.innerHTML = '';
     ingState = {};
     config.ingredients.forEach(name => {
-      ingState[name] = false;
-      const btn = document.createElement('button');
-      btn.className = 'toggle-btn';
-      btn.innerHTML = `<span class="t-icon">❌</span><span>${name}</span>`;
-      btn.addEventListener('click', () => {
-        ingState[name] = !ingState[name];
-        btn.classList.toggle('active', ingState[name]);
-        btn.querySelector('.t-icon').textContent = ingState[name] ? '✅' : '❌';
-        const allDone = config.ingredients.every(n => ingState[n]);
-        document.getElementById('check-all-ing').textContent = allDone ? 'בטל הכל ❌' : 'סמן הכל ✅';
+      ingState[name] = { has: true, washed: false };
+      const row = document.createElement('div');
+      row.className = 'pastry-row';
+      const isRocket = name === 'רוקט';
+      row.innerHTML = `
+        <span class="pastry-name">${name}</span>
+        <div class="pastry-btns">
+          <button class="pastry-btn done" data-s="has">יש ✓</button>
+          <button class="pastry-btn"      data-s="missing">חסר</button>
+        </div>
+        ${isRocket ? `<div class="pastry-btns rocket-wash" style="display:none">
+          <button class="pastry-btn" data-s="washed">שטוף ✓</button>
+          <button class="pastry-btn left" data-s="unwashed">לא שטוף</button>
+        </div>` : ''}
+      `;
+      const [btnHas, btnMissing] = row.querySelectorAll('[data-s="has"], [data-s="missing"]');
+      btnHas.addEventListener('click', () => {
+        ingState[name].has = true;
+        btnHas.classList.add('done'); btnMissing.classList.remove('left');
+        if (isRocket) row.querySelector('.rocket-wash').style.display = 'flex';
       });
-      grid.appendChild(btn);
+      btnMissing.addEventListener('click', () => {
+        ingState[name].has = false;
+        btnMissing.classList.add('left'); btnHas.classList.remove('done');
+        if (isRocket) { row.querySelector('.rocket-wash').style.display = 'none'; ingState[name].washed = false; }
+      });
+      if (isRocket) {
+        const btnWashed   = row.querySelector('[data-s="washed"]');
+        const btnUnwashed = row.querySelector('[data-s="unwashed"]');
+        btnWashed.addEventListener('click', () => {
+          ingState[name].washed = true;
+          btnWashed.classList.add('done'); btnUnwashed.classList.remove('left');
+        });
+        btnUnwashed.addEventListener('click', () => {
+          ingState[name].washed = false;
+          btnUnwashed.classList.add('left'); btnWashed.classList.remove('done');
+        });
+      }
+      container.appendChild(row);
     });
   }
 
@@ -566,17 +589,6 @@
   /* ═══════════════════════════════════════════
      INGREDIENT BULK TOGGLE
   ═══════════════════════════════════════════ */
-  function toggleAllIngredients() {
-    const allDone = config.ingredients.every(n => ingState[n]);
-    const target = !allDone;
-    config.ingredients.forEach(name => { ingState[name] = target; });
-    document.querySelectorAll('#ingredients-grid .toggle-btn').forEach(btn => {
-      btn.classList.toggle('active', target);
-      btn.querySelector('.t-icon').textContent = target ? '✅' : '❌';
-    });
-    document.getElementById('check-all-ing').textContent = target ? 'בטל הכל ❌' : 'סמן הכל ✅';
-  }
-
   /* ═══════════════════════════════════════════
      PASTRIES
   ═══════════════════════════════════════════ */
@@ -653,12 +665,15 @@
       }
     });
 
-    const missing = config.ingredients.filter(n => !ingState[n]);
+    const missingIng = config.ingredients.filter(n => !ingState[n]?.has);
     msg += `\n${R}*כריכים:*\n`;
-    if (missing.length === 0) {
+    if (missingIng.length === 0) {
       msg += `${R}יש את כל המצרכים\n`;
     } else {
-      msg += `${R}חסר: ${missing.join(', ')}\n`;
+      msg += `${R}חסר: ${missingIng.join(', ')}\n`;
+    }
+    if (ingState['רוקט']?.has && !ingState['רוקט']?.washed) {
+      msg += `${R}⚠️ רוקט — לא שטוף\n`;
     }
 
     config.customSections.forEach(section => {

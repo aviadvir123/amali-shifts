@@ -259,8 +259,8 @@
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
     }
-    .pastry-btn.done { background: var(--blue); color: white; border-color: var(--blue); }
-    .pastry-btn.left { background: #e67e22; color: white; border-color: #e67e22; }
+    .pastry-btn.done { background: #e53e3e; color: white; border-color: #e53e3e; }
+    .pastry-btn.left { background: #27ae60; color: white; border-color: #27ae60; }
     .pastry-note {
       flex: 1 0 100%;
       font-family: var(--font);
@@ -497,8 +497,8 @@
       row.innerHTML = `
         <span class="pastry-name">${name}</span>
         <div class="pastry-btns">
-          <button class="pastry-btn done" data-s="done">נגמר ✓</button>
-          <button class="pastry-btn"      data-s="left">יש עוד</button>
+          <button class="pastry-btn done" data-s="done">נגמר</button>
+          <button class="pastry-btn"      data-s="left">יש עוד ✓</button>
         </div>
         ${isRocket ? `<div class="pastry-btns rocket-wash" style="display:none">
           <button class="pastry-btn" data-s="washed">שטוף ✓</button>
@@ -612,8 +612,8 @@
       row.innerHTML = `
         <span class="pastry-name">${name}</span>
         <div class="pastry-btns">
-          <button class="pastry-btn done" data-s="done">נגמר ✓</button>
-          <button class="pastry-btn"      data-s="left">יש עוד</button>
+          <button class="pastry-btn done" data-s="done">נגמר</button>
+          <button class="pastry-btn"      data-s="left">יש עוד ✓</button>
         </div>
         <input class="pastry-note" type="text" placeholder="כמה ואיפה מאוחסן..." style="display:none">
       `;

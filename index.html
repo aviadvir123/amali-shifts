@@ -76,80 +76,41 @@ header {
   padding-bottom: 8px;
   border-bottom: 1.5px solid var(--blue-border);
 }
-.checklist { display: flex; flex-direction: column; gap: 8px; }
-.check-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  border: 2px solid var(--blue-border);
-  background: var(--white);
-  cursor: pointer;
-  font-family: var(--font);
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--blue);
-  transition: all 0.13s ease;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  text-align: right;
-  touch-action: manipulation;
-}
-.check-item .c-icon { font-size: 1rem; flex-shrink: 0; }
-.check-item.active {
-  background: var(--blue);
-  border-color: var(--blue);
-  color: var(--white);
-}
-.check-item:active { transform: scale(0.98); }
-
-/* Separator between merged sections */
-.section-divider {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--gray-dark);
-  margin: 10px 0 6px;
-  padding-top: 10px;
-  border-top: 1.5px solid var(--blue-border);
-}
-
-.toggle-grid {
+.grid3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
-@media (min-width: 390px) {
-  .toggle-grid { grid-template-columns: repeat(4, 1fr); }
-}
-.toggle-btn {
+.grid-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  padding: 10px 4px;
+  padding: 10px 6px;
   border-radius: var(--radius-sm);
   border: 2px solid var(--blue-border);
   background: var(--white);
   cursor: pointer;
   font-family: var(--font);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  color: var(--gray-dark);
+  color: var(--blue);
   transition: all 0.13s ease;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   line-height: 1.3;
+  text-align: center;
   touch-action: manipulation;
+  min-height: 56px;
 }
-.toggle-btn .t-icon { font-size: 0.95rem; }
-.toggle-btn.active {
+.grid-btn .g-icon { font-size: 0.9rem; }
+.grid-btn.active {
   background: var(--blue);
   border-color: var(--blue);
   color: var(--white);
 }
-.toggle-btn:active { transform: scale(0.91); }
+.grid-btn:active { transform: scale(0.94); }
 .field-group { display: flex; flex-direction: column; gap: 6px; }
 .field-label {
   font-size: 0.9rem;
@@ -174,58 +135,9 @@ textarea {
   direction: rtl;
   line-height: 1.5;
 }
-#checklist-notes { min-height: 48px; }
 textarea::placeholder { color: var(--gray); font-weight: 400; }
 textarea:focus { border-color: var(--blue); }
 textarea.field-error { border-color: #e53e3e !important; }
-.field-error-msg {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #e53e3e;
-  display: none;
-}
-.field-error-msg.visible { display: block; }
-.pastry-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 5px 7px;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--blue-border);
-}
-.pastry-row:last-child { border-bottom: none; }
-.pastry-name { flex: 1 0 auto; font-size: 0.88rem; font-weight: 700; color: var(--blue); }
-.pastry-btns { display: flex; gap: 5px; flex-shrink: 0; }
-.pastry-btn {
-  font-family: var(--font);
-  font-size: 0.74rem;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 20px;
-  border: 1.5px solid var(--blue-border);
-  background: var(--white);
-  cursor: pointer;
-  color: var(--blue);
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-}
-.pastry-btn.done { background: #e53e3e; color: white; border-color: #e53e3e; }
-.pastry-btn.left { background: #27ae60; color: white; border-color: #27ae60; }
-.pastry-note {
-  flex: 1 0 100%;
-  font-family: var(--font);
-  font-size: 0.8rem;
-  font-weight: 400;
-  padding: 5px 10px;
-  border: 1.5px solid var(--blue-border);
-  border-radius: var(--radius-sm);
-  direction: rtl;
-  text-align: right;
-  color: var(--blue);
-  outline: none;
-}
-.pastry-note:focus { border-color: var(--blue); }
-.pastry-note.field-error { border-color: #e53e3e !important; }
 .send-btn {
   width: 100%;
   height: 54px;
@@ -246,6 +158,14 @@ textarea.field-error { border-color: #e53e3e !important; }
   touch-action: manipulation;
 }
 .send-btn:active { opacity: 0.85; }
+.group-header {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--blue);
+  padding: 6px 4px 2px;
+  border-bottom: 2.5px solid var(--blue);
+  margin-bottom: 2px;
+}
 </style>
 </head>
 <body>
@@ -257,50 +177,39 @@ textarea.field-error { border-color: #e53e3e !important; }
 
 <div class="container">
 
-  <!-- 1. סגירת קפה -->
+  <!-- ===== בר וקופה ===== -->
+  <div class="group-header">בר וקופה</div>
+
   <div class="card">
-    <div class="card-title">סגירת קפה</div>
-    <div class="checklist" id="checklist"></div>
-    <div class="field-group" style="margin-top: 10px; padding-top: 10px; border-top: 1.5px solid var(--blue-border);">
-      <label class="field-label">הערות</label>
-      <textarea id="checklist-notes" placeholder="..."></textarea>
-      <span class="field-error-msg" id="checklist-notes-error">תסבירו קצת מה חסר</span>
-    </div>
+    <div id="list-bar"></div>
   </div>
 
-  <!-- 2. ניקיון + סגירת קופה — MERGED -->
-  <div class="card">
-    <div class="card-title">ניקיון ׀ סגירת קופה</div>
-    <div class="checklist" id="cs-list-sec_nikuyon"></div>
-    <div class="section-divider">סגירת קופה</div>
-    <div class="checklist" id="cs-list-sec_sgira_kupa"></div>
-  </div>
+  <!-- ===== מטבח ומקררים ===== -->
+  <div class="group-header">מטבח ומקררים</div>
 
-  <!-- 3. מצרכים לכריכים — simple checklist -->
-  <div class="card">
-    <div class="card-title">מצרכים לכריכים</div>
-    <div class="checklist" id="ingredients-list"></div>
-  </div>
-
-  <!-- 4. מלאי בארון -->
-  <div class="card">
-    <div class="card-title">מלאי בארון</div>
-    <div class="checklist" id="cs-list-sec_malai_baron"></div>
-  </div>
-
-  <!-- 5. מוצרי קירור -->
-  <div class="card">
-    <div class="card-title">מוצרי קירור</div>
-    <div class="checklist" id="cs-list-sec_fridge_items"></div>
-  </div>
-
-  <!-- 6. מאפים -->
   <div class="card">
     <div class="card-title">מאפים</div>
     <div id="pastries-list"></div>
   </div>
 
-  <!-- 7. Team message -->
+  <div class="card">
+    <div class="card-title">מקרר</div>
+    <div id="ingredients-list"></div>
+  </div>
+
+  <!-- ===== חנות ===== -->
+  <div class="group-header">חנות</div>
+
+  <div class="card">
+    <div id="list-store"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">ארון</div>
+    <div id="list-storage"></div>
+  </div>
+
+  <!-- מסר לצוות -->
   <div class="card">
     <div class="field-group">
       <label class="field-label">מסר לצוות</label>
@@ -315,58 +224,54 @@ textarea.field-error { border-color: #e53e3e !important; }
 /* ═══════════════════════════════════════════
    DATA
 ═══════════════════════════════════════════ */
-const CHECKLIST_ITEMS = [
-  { pos: 'שקיות קפה ארוזות', neg: 'אין שקיות קפה ארוזות' },
-  { pos: 'יש מספיק קפה במטחנה/דליים', neg: 'אין מספיק קפה במטחנה/דליים' },
+
+// בר וקופה
+const BAR_ITEMS = [
+  { pos: 'בר וויטרינה נקיים', neg: 'בר וויטרינה לא נקיים' },
+  { pos: 'קפה במטחנה/דליים', neg: 'אין מספיק קפה במטחנה/דליים' },
   { pos: 'מצרכים לשוקו בקופסאות', neg: 'אין מצרכים לשוקו בקופסאות' },
   { pos: 'ניקיתי מטחנה (ראשון, שלישי, חמישי)', neg: 'לא ניקיתי מטחנה' },
-];
-
-const NIKUYON_ITEMS = [
-  { pos: 'רצפה נקייה ויבשה', neg: 'רצפה לא נקייה/יבשה' },
   { pos: 'כיור נקי ויבש', neg: 'כיור לא נקי/יבש' },
   { pos: 'מתחת למייבש כלים נקי ויבש', neg: 'מתחת למייבש כלים לא נקי/יבש' },
-  { pos: 'יש מגבות נקיות למחר', neg: 'אין מגבות נקיות למחר' },
-  { pos: 'עציצים שמחים', neg: 'עציצים עומדים למות' },
-  { pos: 'שקיות זבל בכל הפחים כולל שירותים', neg: 'לא שמנו שקיות זבל בפחים' },
-];
-
-const SGIRA_KUPA_ITEMS = [
-  { pos: 'המפתחות למחסן במקום שלהם', neg: 'המפתחות למחסן לא במקום שלהם' },
+  { pos: 'מגבות ומטליות למחר', neg: 'אין מגבות ומטליות למחר' },
+  { pos: 'מפתחות למחסן', neg: 'המפתחות למחסן לא במקום' },
   { pos: 'סגרנו קופה', neg: 'לא סגרנו קופה' },
-  { pos: 'לאייפד יש בטריה/מוטען', neg: 'לאייפד אין בטריה/לא מוטען' },
+  { pos: 'אייפד מוטען', neg: 'אייפד לא מוטען/אין בטריה' },
 ];
 
+// כריכים
 const INGREDIENTS = [
   'גאודה', 'ברי', 'גבינת שמנת',
   'סלמון', 'ביצים',
   'מלפפון', 'עגבניה', 'בצל סגול', 'בצל ירוק', 'רוקט', 'ארטישוק', 'זיתים',
-  'ריבה'
+  'ריבה', 'שמנת חמוצה', 'סודה', 'מי סוכר', 'שוקו מוכן', 'קולד ברו'
 ];
 
-const MALAI_BARON_ITEMS = [
+// חנות
+const STORE_ITEMS = [
+  { pos: 'שקיות קפה ארוזות', neg: 'אין שקיות קפה ארוזות' },
+  { pos: 'רצפה נקייה ויבשה', neg: 'רצפה לא נקייה/יבשה' },
+  { pos: 'עציצים שמחים', neg: 'עציצים עומדים למות' },
+  { pos: 'שקיות זבל בכל הפחים כולל שירותים', neg: 'לא שמנו שקיות זבל בפחים' },
+];
+
+// ארון
+const STORAGE_ITEMS = [
   { pos: 'צץ רץ', neg: 'אין צץ רץ' },
-  { pos: 'יש כוסות חמות וקרות בכל הגדלים', neg: 'אין כוסות חמות וקרות בכל הגדלים' },
-  { pos: 'יש מכסים לכוסות מכל הסוגים', neg: 'אין מכסים לכוסות מכל הסוגים' },
-  { pos: 'יש קופסאות טייקאווי ומכסים', neg: 'אין קופסאות טייקאווי ומכסים' },
-  { pos: 'יש נייר לקופה', neg: 'אין נייר לקופה' },
-  { pos: 'יש מפיות נייר', neg: 'אין מפיות נייר' },
-  { pos: 'יש קשים', neg: 'אין קשים' },
-  { pos: 'יש בוחשנים', neg: 'אין בוחשנים' },
-  { pos: 'יש סוכר', neg: 'אין סוכר' },
-  { pos: 'יש כלי נשיאה לכוסות', neg: 'אין כלי נשיאה לכוסות' },
-  { pos: 'יש שקיות למאפים ושקיות נשיאה', neg: 'אין שקיות למאפים ושקיות נשיאה' },
-  { pos: 'יש ניירות למגשים', neg: 'אין ניירות למגשים' },
-  { pos: 'יש נייר טואלט', neg: 'אין נייר טואלט' },
-  { pos: 'יש שקיות זבל', neg: 'אין שקיות זבל' },
-];
-
-const FRIDGE_ITEMS = [
-  { pos: 'יש קולד ברו', neg: 'אין קולד ברו' },
-  { pos: 'יש שמנת חמוצה', neg: 'אין שמנת חמוצה' },
-  { pos: 'יש סודה', neg: 'אין סודה' },
-  { pos: 'יש מי סוכר', neg: 'אין מי סוכר' },
-  { pos: 'יש שוקו מוכן', neg: 'אין שוקו מוכן' },
+  { pos: 'כוסות חמות וקרות', neg: 'אין כוסות חמות וקרות בכל הגדלים' },
+  { pos: 'מכסים לכוסות', neg: 'אין מכסים לכוסות מכל הסוגים' },
+  { pos: 'קופסאות ומכסים', neg: 'אין קופסאות טייקאווי ומכסים' },
+  { pos: 'נייר לקופה', neg: 'אין נייר לקופה' },
+  { pos: 'מפיות נייר', neg: 'אין מפיות נייר' },
+  { pos: 'קשים', neg: 'אין קשים' },
+  { pos: 'בוחשנים', neg: 'אין בוחשנים' },
+  { pos: 'סוכר', neg: 'אין סוכר' },
+  { pos: 'כלי נשיאה', neg: 'אין כלי נשיאה לכוסות' },
+  { pos: 'שקיות מאפים', neg: 'אין שקיות למאפים ושקיות נשיאה' },
+  { pos: 'שקיות נשיאה', neg: 'אין שקיות נשיאה' },
+  { pos: 'ניירות מגשים', neg: 'אין ניירות למגשים' },
+  { pos: 'נייר טואלט', neg: 'אין נייר טואלט' },
+  { pos: 'שקיות זבל', neg: 'אין שקיות זבל' },
 ];
 
 const PASTRY_ITEMS = ['בראוניז', 'שוקולדציפס', 'שורטברד', 'טארט', 'בחושה', 'באסקית', 'נוספים'];
@@ -374,89 +279,149 @@ const PASTRY_ITEMS = ['בראוניז', 'שוקולדציפס', 'שורטברד'
 /* ═══════════════════════════════════════════
    STATE
 ═══════════════════════════════════════════ */
-let checkState = {};
-let nikuyonState = {};
-let sgiraKupaState = {};
+let barState = {};
 let ingState = {};
-let malaiState = {};
-let fridgeState = {};
+let storeState = {};
+let storageState = {};
 let pastriesState = {};
 
 /* ═══════════════════════════════════════════
    HELPERS
 ═══════════════════════════════════════════ */
-function makeChecklist(items, stateObj, containerId) {
+function makeGrid(items, stateObj, containerId) {
   const container = document.getElementById(containerId);
+  container.classList.add('grid3');
   items.forEach(item => {
     stateObj[item.pos] = false;
-    const el = document.createElement('div');
-    el.className = 'check-item';
-    el.innerHTML = `<span class="c-icon">❌</span><span>${item.pos}</span>`;
-    el.addEventListener('click', () => {
+    const btn = document.createElement('button');
+    btn.className = 'grid-btn';
+    btn.innerHTML = `<span class="g-icon">❌</span><span>${item.pos}</span>`;
+    btn.addEventListener('click', () => {
       stateObj[item.pos] = !stateObj[item.pos];
-      el.classList.toggle('active', stateObj[item.pos]);
-      el.querySelector('.c-icon').textContent = stateObj[item.pos] ? '✅' : '❌';
+      btn.classList.toggle('active', stateObj[item.pos]);
+      btn.querySelector('.g-icon').textContent = stateObj[item.pos] ? '✅' : '❌';
     });
-    container.appendChild(el);
+    container.appendChild(btn);
   });
 }
 
 /* ═══════════════════════════════════════════
    RENDER
 ═══════════════════════════════════════════ */
-function renderChecklist() {
-  makeChecklist(CHECKLIST_ITEMS, checkState, 'checklist');
-}
+function renderAll() {
+  makeGrid(BAR_ITEMS, barState, 'list-bar');
+  // כריכים — עם טיפול מיוחד לרוקט
+  const ingContainer = document.getElementById('ingredients-list');
+  ingContainer.classList.add('grid3');
+  INGREDIENTS.forEach(name => {
+    ingState[name] = { checked: false, washed: null };
 
-function renderNikuyonAndKupa() {
-  makeChecklist(NIKUYON_ITEMS, nikuyonState, 'cs-list-sec_nikuyon');
-  makeChecklist(SGIRA_KUPA_ITEMS, sgiraKupaState, 'cs-list-sec_sgira_kupa');
-}
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'display:flex; flex-direction:column; gap:4px;';
 
-function renderIngredients() {
-  makeChecklist(
-    INGREDIENTS.map(name => ({ pos: name, neg: `אין ${name}` })),
-    ingState,
-    'ingredients-list'
-  );
-}
+    const btn = document.createElement('button');
+    btn.className = 'grid-btn';
+    btn.innerHTML = `<span class="g-icon">❌</span><span>${name}</span>`;
 
-function renderMalai() {
-  makeChecklist(MALAI_BARON_ITEMS, malaiState, 'cs-list-sec_malai_baron');
-}
+    // רוקט — בנה את washRow קודם כדי שיהיה זמין ב-click handler
+    let washRow = null, btnWashed = null, btnUnwashed = null;
+    if (name === 'רוקט') {
+      washRow = document.createElement('div');
+      washRow.style.cssText = 'display:none; grid-template-columns:1fr 1fr; gap:4px;';
 
-function renderFridge() {
-  makeChecklist(FRIDGE_ITEMS, fridgeState, 'cs-list-sec_fridge_items');
-}
+      btnWashed = document.createElement('button');
+      btnWashed.className = 'grid-btn';
+      btnWashed.style.cssText = 'font-size:0.72rem; min-height:36px; padding:5px 4px;';
+      btnWashed.innerHTML = `<span>שטוף ✅</span>`;
 
-function renderPastries() {
+      btnUnwashed = document.createElement('button');
+      btnUnwashed.className = 'grid-btn';
+      btnUnwashed.style.cssText = 'font-size:0.72rem; min-height:36px; padding:5px 4px;';
+      btnUnwashed.innerHTML = `<span>לא שטוף ⚠️</span>`;
+
+      btnWashed.addEventListener('click', () => {
+        ingState[name].washed = true;
+        btnWashed.style.cssText = 'font-size:0.72rem; min-height:36px; padding:5px 4px; background:#27ae60; border-color:#27ae60; color:white;';
+        btnUnwashed.style.cssText = 'font-size:0.72rem; min-height:36px; padding:5px 4px;';
+      });
+      btnUnwashed.addEventListener('click', () => {
+        ingState[name].washed = false;
+        btnUnwashed.style.cssText = 'font-size:0.72rem; min-height:36px; padding:5px 4px; background:#e53e3e; border-color:#e53e3e; color:white;';
+        btnWashed.style.cssText = 'font-size:0.72rem; min-height:36px; padding:5px 4px;';
+      });
+
+      washRow.appendChild(btnWashed);
+      washRow.appendChild(btnUnwashed);
+    }
+
+    btn.addEventListener('click', () => {
+      ingState[name].checked = !ingState[name].checked;
+      btn.classList.toggle('active', ingState[name].checked);
+      btn.querySelector('.g-icon').textContent = ingState[name].checked ? '✅' : '❌';
+      if (name === 'רוקט') {
+        washRow.style.display = ingState[name].checked ? 'grid' : 'none';
+        if (ingState[name].checked) {
+          // ברירת מחדל: לא שטוף
+          ingState[name].washed = false;
+          btnUnwashed.style.cssText = 'font-size:0.72rem; min-height:36px; padding:5px 4px; background:#e53e3e; border-color:#e53e3e; color:white;';
+          btnWashed.style.cssText = 'font-size:0.72rem; min-height:36px; padding:5px 4px;';
+        } else {
+          ingState[name].washed = null;
+          btnWashed.style.cssText = 'font-size:0.72rem; min-height:36px; padding:5px 4px;';
+          btnUnwashed.style.cssText = 'font-size:0.72rem; min-height:36px; padding:5px 4px;';
+        }
+      }
+    });
+
+    wrapper.appendChild(btn);
+    if (washRow) wrapper.appendChild(washRow);
+    ingContainer.appendChild(wrapper);
+  });
+  makeGrid(STORE_ITEMS, storeState, 'list-store');
+  makeGrid(STORAGE_ITEMS, storageState, 'list-storage');
+
+  // מאפים
   const container = document.getElementById('pastries-list');
+  container.classList.add('grid3');
   PASTRY_ITEMS.forEach(name => {
-    pastriesState[name] = { done: true, note: '' };
-    const row = document.createElement('div');
-    row.className = 'pastry-row';
-    row.innerHTML = `
-      <span class="pastry-name">${name}</span>
-      <div class="pastry-btns">
-        <button class="pastry-btn done" data-s="done">נגמר</button>
-        <button class="pastry-btn" data-s="left">יש עוד ✓</button>
-      </div>
-      <input class="pastry-note" type="text" placeholder="כמה ואיפה מאוחסן..." style="display:none">
-    `;
-    const [btnDone, btnLeft] = row.querySelectorAll('.pastry-btn');
-    const noteEl = row.querySelector('.pastry-note');
-    btnDone.addEventListener('click', () => {
-      pastriesState[name].done = true;
-      btnDone.classList.add('done'); btnLeft.classList.remove('left');
-      noteEl.style.display = 'none'; noteEl.value = ''; pastriesState[name].note = '';
+    pastriesState[name] = { done: false, note: '' };
+
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'display:flex; flex-direction:column; gap:4px;';
+
+    const btn = document.createElement('button');
+    btn.className = 'grid-btn';
+    btn.innerHTML = `<span class="g-icon">📦</span><span>${name}</span>`;
+
+    const noteEl = document.createElement('input');
+    noteEl.type = 'text';
+    noteEl.placeholder = 'כמה/איפה';
+    noteEl.style.cssText = 'display:none; font-family:var(--font); font-size:0.75rem; padding:5px 8px; border:1.5px solid var(--blue-border); border-radius:var(--radius-sm); direction:rtl; text-align:right; color:var(--blue); outline:none; width:100%;';
+
+    btn.addEventListener('click', () => {
+      pastriesState[name].done = !pastriesState[name].done;
+      if (pastriesState[name].done) {
+        btn.style.cssText = 'background:#e53e3e; border-color:#e53e3e; color:white;';
+        btn.querySelector('.g-icon').textContent = '✖';
+        noteEl.style.display = 'none';
+        noteEl.value = '';
+        pastriesState[name].note = '';
+        noteEl.style.borderColor = '';
+      } else {
+        btn.style.cssText = '';
+        btn.querySelector('.g-icon').textContent = '📦';
+        noteEl.style.display = 'block';
+      }
     });
-    btnLeft.addEventListener('click', () => {
-      pastriesState[name].done = false;
-      btnLeft.classList.add('left'); btnDone.classList.remove('done');
-      noteEl.style.display = 'block';
+
+    noteEl.addEventListener('input', () => {
+      pastriesState[name].note = noteEl.value;
+      noteEl.style.borderColor = '';
     });
-    noteEl.addEventListener('input', () => { pastriesState[name].note = noteEl.value; noteEl.classList.remove('field-error'); });
-    container.appendChild(row);
+
+    wrapper.appendChild(btn);
+    wrapper.appendChild(noteEl);
+    container.appendChild(wrapper);
   });
 }
 
@@ -470,11 +435,6 @@ document.getElementById('date-display').textContent =
     month: 'long', year: 'numeric'
   });
 
-document.getElementById('checklist-notes').addEventListener('input', () => {
-  document.getElementById('checklist-notes').classList.remove('field-error');
-  document.getElementById('checklist-notes-error').classList.remove('visible');
-});
-
 /* ═══════════════════════════════════════════
    WHATSAPP
 ═══════════════════════════════════════════ */
@@ -487,37 +447,10 @@ function buildMessage() {
   const line = s => `${R}${s}`;
   let msg = `${R}*סיכום סגירה — ${dateStr}*\n\n`;
 
-  // סגירת קפה
-  const coffeeNotDone = CHECKLIST_ITEMS.filter(item => !checkState[item.pos]);
-  msg += `${R}*סגירת קפה:*\n`;
-  msg += coffeeNotDone.length === 0 ? `${R}הכל בוצע\n` : coffeeNotDone.map(i => line(`- ${i.neg}`)).join('\n') + '\n';
-  const checkNotes = document.getElementById('checklist-notes').value.trim();
-  if (checkNotes) msg += `${R}הערות: ${checkNotes}\n`;
-
-  // ניקיון
-  const nikuyonNotDone = NIKUYON_ITEMS.filter(item => !nikuyonState[item.pos]);
-  msg += `\n${R}*ניקיון:*\n`;
-  msg += nikuyonNotDone.length === 0 ? `${R}הכל בוצע\n` : nikuyonNotDone.map(i => line(`- ${i.neg}`)).join('\n') + '\n';
-
-  // סגירת קופה
-  const kupaNotDone = SGIRA_KUPA_ITEMS.filter(item => !sgiraKupaState[item.pos]);
-  msg += `\n${R}*סגירת קופה:*\n`;
-  msg += kupaNotDone.length === 0 ? `${R}הכל בוצע\n` : kupaNotDone.map(i => line(`- ${i.neg}`)).join('\n') + '\n';
-
-  // מצרכים לכריכים
-  const ingNotDone = INGREDIENTS.filter(name => !ingState[name]);
-  msg += `\n${R}*מצרכים לכריכים:*\n`;
-  msg += ingNotDone.length === 0 ? `${R}יש הכל\n` : `${R}חסר: ${ingNotDone.join(', ')}\n`;
-
-  // מלאי בארון
-  const malaiNotDone = MALAI_BARON_ITEMS.filter(item => !malaiState[item.pos]);
-  msg += `\n${R}*מלאי בארון:*\n`;
-  msg += malaiNotDone.length === 0 ? `${R}יש הכל\n` : malaiNotDone.map(i => line(`- ${i.neg}`)).join('\n') + '\n';
-
-  // מוצרי קירור
-  const fridgeNotDone = FRIDGE_ITEMS.filter(item => !fridgeState[item.pos]);
-  msg += `\n${R}*מוצרי קירור:*\n`;
-  msg += fridgeNotDone.length === 0 ? `${R}יש הכל\n` : fridgeNotDone.map(i => line(`- ${i.neg}`)).join('\n') + '\n';
+  // בר וקופה
+  const barNotDone = BAR_ITEMS.filter(item => !barState[item.pos]);
+  msg += `${R}*בר וקופה:*\n`;
+  msg += barNotDone.length === 0 ? `${R}הכל בוצע\n` : barNotDone.map(i => line(`- ${i.neg}`)).join('\n') + '\n';
 
   // מאפים
   msg += `\n${R}*מאפים:*\n`;
@@ -527,6 +460,25 @@ function buildMessage() {
       ? line(`- ${name}: נגמר`) + '\n'
       : line(`- ${name}: יש עוד — ${s.note || 'לא צוין'}`) + '\n';
   });
+
+  // מקרר
+  const ingNotDone = INGREDIENTS.filter(name => !ingState[name]?.checked);
+  msg += `\n${R}*מקרר:*\n`;
+  msg += ingNotDone.length === 0 ? `${R}יש הכל\n` : `${R}חסר: ${ingNotDone.join(', ')}\n`;
+  if (ingState['רוקט']?.checked) {
+    const washedTxt = ingState['רוקט'].washed === true ? 'שטוף ✅' : 'לא שטוף ⚠️';
+    msg += `${R}רוקט: ${washedTxt}\n`;
+  }
+
+  // חנות
+  const storeNotDone = STORE_ITEMS.filter(item => !storeState[item.pos]);
+  msg += `\n${R}*חנות:*\n`;
+  msg += storeNotDone.length === 0 ? `${R}הכל בוצע\n` : storeNotDone.map(i => line(`- ${i.neg}`)).join('\n') + '\n';
+
+  // ארון
+  const storageNotDone = STORAGE_ITEMS.filter(item => !storageState[item.pos]);
+  msg += `\n${R}*ארון:*\n`;
+  msg += storageNotDone.length === 0 ? `${R}יש הכל\n` : storageNotDone.map(i => line(`- ${i.neg}`)).join('\n') + '\n';
 
   // מסר לצוות
   const note = document.getElementById('team-message').value.trim();
@@ -539,30 +491,16 @@ function sendWhatsApp() {
   let valid = true;
   let firstErrorEl = null;
 
-  // Validate pastry notes
-  document.querySelectorAll('#pastries-list .pastry-note').forEach(input => {
+  // ולידציה מאפים — יש עוד בלי הערה
+  document.querySelectorAll('#pastries-list input[type="text"]').forEach(input => {
     if (input.style.display !== 'none' && !input.value.trim()) {
-      input.classList.add('field-error');
+      input.style.borderColor = '#e53e3e';
       if (!firstErrorEl) firstErrorEl = input;
       valid = false;
     } else {
-      input.classList.remove('field-error');
+      input.style.borderColor = '';
     }
   });
-
-  // Validate checklist notes if something is unchecked
-  const hasUnchecked = CHECKLIST_ITEMS.some(item => !checkState[item.pos]);
-  const notesEl = document.getElementById('checklist-notes');
-  const notesErr = document.getElementById('checklist-notes-error');
-  if (hasUnchecked && notesEl.value.trim().length === 0) {
-    notesEl.classList.add('field-error');
-    notesErr.classList.add('visible');
-    if (!firstErrorEl) firstErrorEl = notesEl;
-    valid = false;
-  } else {
-    notesEl.classList.remove('field-error');
-    notesErr.classList.remove('visible');
-  }
 
   if (!valid) {
     firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -580,12 +518,7 @@ function sendWhatsApp() {
 /* ═══════════════════════════════════════════
    INIT
 ═══════════════════════════════════════════ */
-renderChecklist();
-renderNikuyonAndKupa();
-renderIngredients();
-renderMalai();
-renderFridge();
-renderPastries();
+renderAll();
 </script>
 </body>
 </html>

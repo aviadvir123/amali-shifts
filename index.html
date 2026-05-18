@@ -14,8 +14,6 @@
   --bg: #F5F5F5;
   --white: #FFFFFF;
   --gray: #D0D0D0;
-  --gray-dark: #888;
-  --red: #e53e3e;
   --radius: 12px;
   --radius-sm: 8px;
   --font: 'Alef', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -104,6 +102,7 @@ header {
   touch-action: manipulation;
   min-height: 56px;
 }
+.grid-btn span { pointer-events: none; }
 .grid-btn .g-icon { font-size: 0.9rem; }
 .grid-btn.active {
   background: var(--blue);
@@ -250,7 +249,7 @@ const INGREDIENTS = [
 // חנות
 const STORE_ITEMS = [
   { pos: 'שקיות קפה ארוזות', neg: 'אין שקיות קפה ארוזות' },
-  { pos: 'רצפה נקייה ויבשה', neg: 'רצפה לא נקייה/יבשה' },
+  { pos: 'רצפה יבשה', neg: 'רצפה לא יבשה' },
   { pos: 'עציצים שמחים', neg: 'עציצים עומדים למות' },
   { pos: 'שקיות זבל בכל הפחים כולל שירותים', neg: 'לא שמנו שקיות זבל בפחים' },
 ];
@@ -383,6 +382,7 @@ function renderAll() {
   // מאפים
   const container = document.getElementById('pastries-list');
   container.classList.add('grid3');
+  container.style.gridTemplateColumns = 'repeat(2, 1fr)';
   PASTRY_ITEMS.forEach(name => {
     pastriesState[name] = { done: false, note: '' };
 
@@ -396,21 +396,21 @@ function renderAll() {
     const noteEl = document.createElement('input');
     noteEl.type = 'text';
     noteEl.placeholder = 'כמה/איפה';
-    noteEl.style.cssText = 'display:none; font-family:var(--font); font-size:0.75rem; padding:5px 8px; border:1.5px solid var(--blue-border); border-radius:var(--radius-sm); direction:rtl; text-align:right; color:var(--blue); outline:none; width:100%;';
+    noteEl.style.cssText = 'visibility:visible; font-family:var(--font); font-size:0.75rem; padding:5px 8px; border:1.5px solid var(--blue-border); border-radius:var(--radius-sm); direction:rtl; text-align:right; color:var(--blue); outline:none; width:100%;';
 
     btn.addEventListener('click', () => {
       pastriesState[name].done = !pastriesState[name].done;
       if (pastriesState[name].done) {
         btn.style.cssText = 'background:#e53e3e; border-color:#e53e3e; color:white;';
         btn.querySelector('.g-icon').textContent = '✖';
-        noteEl.style.display = 'none';
+        noteEl.style.visibility = 'hidden';
         noteEl.value = '';
         pastriesState[name].note = '';
         noteEl.style.borderColor = '';
       } else {
         btn.style.cssText = '';
         btn.querySelector('.g-icon').textContent = '📦';
-        noteEl.style.display = 'block';
+        noteEl.style.visibility = 'visible';
       }
     });
 
@@ -466,7 +466,7 @@ function buildMessage() {
   msg += `\n${R}*מקרר:*\n`;
   msg += ingNotDone.length === 0 ? `${R}יש הכל\n` : `${R}חסר: ${ingNotDone.join(', ')}\n`;
   if (ingState['רוקט']?.checked) {
-    const washedTxt = ingState['רוקט'].washed === true ? 'שטוף ✅' : 'לא שטוף ⚠️';
+    const washedTxt = ingState['רוקט'].washed === true ? 'יש, שטוף ✅' : 'יש, לא שטוף ⚠️';
     msg += `${R}רוקט: ${washedTxt}\n`;
   }
 
@@ -493,7 +493,7 @@ function sendWhatsApp() {
 
   // ולידציה מאפים — יש עוד בלי הערה
   document.querySelectorAll('#pastries-list input[type="text"]').forEach(input => {
-    if (input.style.display !== 'none' && !input.value.trim()) {
+    if (input.style.visibility !== 'hidden' && !input.value.trim()) {
       input.style.borderColor = '#e53e3e';
       if (!firstErrorEl) firstErrorEl = input;
       valid = false;

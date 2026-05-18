@@ -391,7 +391,8 @@ function renderAll() {
 
     const btn = document.createElement('button');
     btn.className = 'grid-btn';
-    btn.innerHTML = `<span class="g-icon">📦</span><span>${name}</span>`;
+    btn.style.cssText = 'background:#27ae60; border-color:#27ae60; color:white;';
+    btn.innerHTML = `<span class="g-icon">✅</span><span>${name}</span>`;
 
     const noteEl = document.createElement('input');
     noteEl.type = 'text';
@@ -401,6 +402,7 @@ function renderAll() {
     btn.addEventListener('click', () => {
       pastriesState[name].done = !pastriesState[name].done;
       if (pastriesState[name].done) {
+        // נגמר — אדום
         btn.style.cssText = 'background:#e53e3e; border-color:#e53e3e; color:white;';
         btn.querySelector('.g-icon').textContent = '✖';
         noteEl.style.visibility = 'hidden';
@@ -408,8 +410,9 @@ function renderAll() {
         pastriesState[name].note = '';
         noteEl.style.borderColor = '';
       } else {
-        btn.style.cssText = '';
-        btn.querySelector('.g-icon').textContent = '📦';
+        // יש עוד — ירוק
+        btn.style.cssText = 'background:#27ae60; border-color:#27ae60; color:white;';
+        btn.querySelector('.g-icon').textContent = '✅';
         noteEl.style.visibility = 'visible';
       }
     });

@@ -386,34 +386,33 @@ function renderAll() {
   container.classList.add('grid3');
   container.style.gridTemplateColumns = 'repeat(2, 1fr)';
   PASTRY_ITEMS.forEach(name => {
-    pastriesState[name] = { done: false, note: '' };
+    pastriesState[name] = { done: true, note: '' };
 
     const wrapper = document.createElement('div');
     wrapper.style.cssText = 'display:flex; flex-direction:column; gap:4px;';
 
     const btn = document.createElement('button');
     btn.className = 'grid-btn';
-    btn.style.cssText = 'background:#27ae60; border-color:#27ae60; color:white;';
-    btn.innerHTML = `<span class="g-icon">✅</span><span>${name}</span>`;
+    btn.innerHTML = `<span class="g-icon">❌</span><span>${name}</span>`;
 
     const noteEl = document.createElement('input');
     noteEl.type = 'text';
     noteEl.placeholder = 'כמה/איפה';
-    noteEl.style.cssText = 'visibility:visible; font-family:var(--font); font-size:0.75rem; padding:5px 8px; border:1.5px solid var(--blue-border); border-radius:var(--radius-sm); direction:rtl; text-align:right; color:var(--blue); outline:none; width:100%;';
+    noteEl.style.cssText = 'visibility:hidden; font-family:var(--font); font-size:0.75rem; padding:5px 8px; border:1.5px solid var(--blue-border); border-radius:var(--radius-sm); direction:rtl; text-align:right; color:var(--blue); outline:none; width:100%;';
 
     btn.addEventListener('click', () => {
       pastriesState[name].done = !pastriesState[name].done;
       if (pastriesState[name].done) {
-        // נגמר — אדום
-        btn.style.cssText = 'background:#e53e3e; border-color:#e53e3e; color:white;';
-        btn.querySelector('.g-icon').textContent = '✖';
+        // נגמר — ברירת מחדל, כמו שאר הפריטים
+        btn.classList.remove('active');
+        btn.querySelector('.g-icon').textContent = '❌';
         noteEl.style.visibility = 'hidden';
         noteEl.value = '';
         pastriesState[name].note = '';
         noteEl.style.borderColor = '';
       } else {
-        // יש עוד — ירוק
-        btn.style.cssText = 'background:#27ae60; border-color:#27ae60; color:white;';
+        // יש עוד — מסומן
+        btn.classList.add('active');
         btn.querySelector('.g-icon').textContent = '✅';
         noteEl.style.visibility = 'visible';
       }
